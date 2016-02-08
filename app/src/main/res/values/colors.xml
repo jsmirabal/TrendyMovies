@@ -15,9 +15,9 @@
 -->
 
 <resources>
-    <color name="colorPrimary">@color/grey500</color>
-    <color name="colorPrimaryDark">@color/grey700</color>
-    <color name="colorAccent">@color/deepPurple500</color>
+    <color name="colorPrimary">@color/teal500</color>
+    <color name="colorPrimaryDark">@color/teal700</color>
+    <color name="colorAccent">@color/blueGrey500</color>
 
     <!-- Black & White__________________________________________________________________________ -->
     <color name="black">#000000</color>

@@ -1,28 +1,31 @@
 package japps.trendymovies.fragments;
 
 import android.app.Fragment;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import japps.trendymovies.R;
+import japps.trendymovies.activities.MovieDetailActivity;
 
 /**
  * Created by Julio on 21/1/2016.
  */
-public class MainFragment extends Fragment implements OnNavigationItemSelectedListener {
+public class MainFragment extends Fragment implements AdapterView.OnItemClickListener {
     private BaseAdapter mAdapter;
     private final String LOG_TAG = MainFragment.class.getSimpleName();
-
+    private Map<Integer,String> mapMovieTitles;
     public MainFragment() {
         Log.d(LOG_TAG, "IN!");
     }
@@ -30,31 +33,30 @@ public class MainFragment extends Fragment implements OnNavigationItemSelectedLi
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final int fragmentMainRes = R.layout.fragment_main;
-        final int imageRes = R.drawable.sherlock;
+        final int sherlockImg = R.drawable.sherlock;
+        final int interstellarImg = R.drawable.interstellar;
+        final int batmanImg = R.drawable.the_dark_knight;
         final int imageViewId = R.id.poster_view;
-        final int listItemViewRes = R.layout.list_item_poster;
-        final Object[] posterList = {imageRes, imageRes, imageRes, imageRes, imageRes, imageRes, imageRes, imageRes};
+        final int gridItemRes = R.layout.list_item_poster;
+        final Object[] posterList = {sherlockImg, interstellarImg, batmanImg, interstellarImg,
+                sherlockImg, batmanImg, sherlockImg, interstellarImg};
         View root = inflater.inflate(fragmentMainRes, container, false);
         mAdapter = new ArrayAdapter(getActivity(), fragmentMainRes, imageViewId, posterList) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 return createViewFromResource(inflater, posterList, position, parent,
-                        listItemViewRes, imageViewId);
+                        gridItemRes, imageViewId);
             }
         };
         GridView gridView = (GridView) root.findViewById(R.id.gridView);
         gridView.setAdapter(mAdapter);
+        gridView.setOnItemClickListener(this);
+        mapMovieTitles = new HashMap<>();
         return root;
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem menuItem) {
-        return false;
     }
 
     private View createViewFromResource(LayoutInflater inflater, Object[] items, int position,
                                         ViewGroup parent, int layout, int viewId) {
-
         ImageView imageView;
         View view;
         view = inflater.inflate(layout, parent, false);
@@ -63,6 +65,7 @@ public class MainFragment extends Fragment implements OnNavigationItemSelectedLi
         if (items[position] instanceof Integer) {
             int imgRes = (int) items[position];
             imageView.setImageResource(imgRes);
+            setMapData(items,position);
         } else {
             throw new IllegalArgumentException("(Object[] items) must be instance of Integer");
         }
@@ -70,49 +73,31 @@ public class MainFragment extends Fragment implements OnNavigationItemSelectedLi
         return imageView;
     }
 
-    public class ImageAdapter extends BaseAdapter {
-        private Context context;
-        private int[] imageIDs;
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(getActivity(),MovieDetailActivity.class);
+        intent.putExtra("movie_name", mapMovieTitles.get(position));
+        startActivity(intent);
+    }
 
-        public ImageAdapter(Context c, int[] ids) {
-            context = c;
-            imageIDs = ids;
-        }
-
-        //---returns the number of images---
-        public int getCount() {
-            return imageIDs.length;
-        }
-
-        //---returns the ID of an item---
-        public Object getItem(int position) {
-            return position;
-        }
-
-        public long getItemId(int position) {
-            return position;
-        }
-
-        //---returns an ImageView view---
-        public View getView(final int position, View convertView, ViewGroup parent) {
-
-            final ImageView imageView;
-            if (convertView == null) {
-                imageView = new ImageView(context);
-                imageView.setLayoutParams(new GridView.LayoutParams(185, 185));
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setPadding(5, 5, 5, 5);
-            } else {
-                imageView = (ImageView) convertView;
+    private void setMapData(Object[] items, int position){
+        final int sherlockImg = R.drawable.sherlock;
+        final int interstellarImg = R.drawable.interstellar;
+        final int batmanImg = R.drawable.the_dark_knight;
+        int objectValue = (Integer)items[position];
+        switch (objectValue){
+            case sherlockImg:{
+                mapMovieTitles.put(position,"sherlock_holmes");
             }
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    imageView.setImageResource(imageIDs[position]);
-                }
-            });
-            t.start();
-            return imageView;
+            break;
+            case interstellarImg:{
+                mapMovieTitles.put(position,"interstellar");
+            }
+            break;
+            case batmanImg:{
+                mapMovieTitles.put(position,"batman");
+            }
+
         }
     }
 }
