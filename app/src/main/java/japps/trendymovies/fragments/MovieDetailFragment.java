@@ -15,6 +15,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import org.apmem.tools.layouts.FlowLayout;
 
 import java.util.HashMap;
@@ -38,7 +40,7 @@ public class MovieDetailFragment extends Fragment {
         View rootView = inflater.inflate(FRAGMENT_MOVIE_DETAIL_RES,container,false);
         mContext = getActivity();
         setTextViewScrolling(rootView);
-        setMovieData(rootView);
+        //setMovieData(rootView);
         addTrailerButtons(rootView, inflater, container);
         return rootView;
     }
@@ -54,21 +56,24 @@ public class MovieDetailFragment extends Fragment {
                 titleView.setText(getString(R.string.example_movie_title_1));
                 statisticsView.setText(getString(R.string.example_movie_details_1));
                 synopsisView.setText(getString(R.string.example_movie_synopsis_1));
-                posterImg.setImageResource(R.drawable.sherlock);
+                //posterImg.setImageResource(R.drawable.sherlock);
+                Picasso.with(mContext).load(R.drawable.sherlock).into(posterImg);
             }
             break;
             case "interstellar":{
                 titleView.setText(getString(R.string.example_movie_title_2));
                 statisticsView.setText(getString(R.string.example_movie_details_2));
                 synopsisView.setText(getString(R.string.example_movie_synopsis_2));
-                posterImg.setImageResource(R.drawable.interstellar);
+                //posterImg.setImageResource(R.drawable.interstellar);
+                Picasso.with(mContext).load(R.drawable.interstellar).into(posterImg);
             }
             break;
             case "batman":{
                 titleView.setText(getString(R.string.example_movie_title_3));
                 statisticsView.setText(getString(R.string.example_movie_details_3));
                 synopsisView.setText(getString(R.string.example_movie_synopsis_3));
-                posterImg.setImageResource(R.drawable.the_dark_knight);
+//                posterImg.setImageResource(R.drawable.the_dark_knight);
+                Picasso.with(mContext).load(R.drawable.the_dark_knight).into(posterImg);
             }
             break;
             default:{
