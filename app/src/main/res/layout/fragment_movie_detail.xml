@@ -8,14 +8,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top|right"
-        android:background="@drawable/component_shadow"
         android:orientation="horizontal"
-        android:paddingBottom="3dp">
+        android:background="@color/colorPrimary">
 
         <ImageView
             android:id="@+id/movie_detail_poster_image"
-            android:layout_width="175dp"
-            android:layout_height="254dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/movie_detail_poster_desc"/>
 
         <RelativeLayout
@@ -85,3 +84,4 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>
+

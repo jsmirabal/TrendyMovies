@@ -23,7 +23,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             return;
         }
-        getSupportActionBar().setElevation(0);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.activity_movie_detail, new MovieDetailFragment())
                 .commit();

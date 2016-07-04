@@ -17,45 +17,82 @@ import java.net.URL;
 
 import japps.trendymovies.BuildConfig;
 import japps.trendymovies.data.MovieData;
+import japps.trendymovies.data.MovieHandler;
+import japps.trendymovies.data.MovieListData;
+import japps.trendymovies.utilities.Utils;
 
 /**
  * Created by Julio on 9/2/2016.
  */
-public class FetchMovieTask extends AsyncTask<Void, Void, MovieData> {
+public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
+    private final String BASE_URI_MOVIE = "http://api.themoviedb.org/3/movie/";
+    private final String BASE_URI_MOVIE_LIST = "http://api.themoviedb.org/3/discover/movie";
+    private final String BASE_URI_YOUTUBE = "https://www.youtube.com/watch";
+    private final String API_KEY = BuildConfig.MOVIE_DB_API_KEY;
+    public static final int FETCH_MOVIE = 1;
+    public static final int FETCH_MOVIE_LIST = 2;
     private Context mContext;
 
-    protected MovieData doInBackground(Void... params ) {
-        String sortBy = "popularity.desc";
-        JSONObject jsonData = getMoviesFromApi(sortBy);
-        MovieData movieData;
-        if (jsonData != null){
-            try {
-                //Log.d(LOG_TAG,jsonData.toString(4));
-                movieData = new MovieData(jsonData);
-                //Log.d(LOG_TAG, movieData.getMoviePosterPathList().toString());
-                return  movieData;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(LOG_TAG, "Error printing json data.");
+    protected MovieHandler doInBackground(Object... params ) {
+
+        if (!(params[0] instanceof Integer)){return null;}
+        if (!(params[1] instanceof String)){return null;}
+
+        Integer fetchType = (Integer) params[0];
+        String movieId = (String) params[1];
+        final String SORT_PARAM = "sort_by";
+        final String LANG_PARAM = "language";
+        final String ATR_PARAM = "append_to_response";
+        final String API_KEY_PARAM = "api_key";
+        String requestPath;
+        JSONObject jsonData;
+        switch(fetchType){
+            case FETCH_MOVIE:{
+                requestPath = Uri.parse(BASE_URI_MOVIE+movieId).buildUpon()
+                        .appendQueryParameter(LANG_PARAM, Utils.getLocale())
+                        .appendQueryParameter(ATR_PARAM, "trailers,reviews")
+                        .appendQueryParameter(API_KEY_PARAM,API_KEY)
+                        .build().toString();
+                jsonData = fetchDataFromTMDB(requestPath);
+                try {
+                    MovieHandler movie = new MovieData(jsonData);
+                    return movie;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(LOG_TAG, "JSON ERROR: "+ e.getMessage());
+                }
+                break;
             }
+            case FETCH_MOVIE_LIST:{
+                String sortBy = "popularity.desc";
+                requestPath = Uri.parse(BASE_URI_MOVIE_LIST).buildUpon()
+                        .appendQueryParameter(SORT_PARAM, sortBy)
+                        .appendQueryParameter(API_KEY_PARAM,API_KEY)
+                        .build().toString();
+                jsonData = fetchDataFromTMDB(requestPath);
+                try {
+                    MovieHandler movieList = new MovieListData(jsonData);
+                    Log.d(LOG_TAG, ((MovieListData) movieList).getMovieIdList().toString());
+                    return movieList;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(LOG_TAG, "JSON ERROR: "+ e.getMessage());
+                }
+                break;
+            }
+
         }
         return null;
     }
 
-    private JSONObject getMoviesFromApi(String sortBy) {
-        final String BASE_URI = "http://api.themoviedb.org/3/discover/movie";
-        final String SORT_PARAM = "sort_by";
-        final String API_KEY_PARAM = "api_key";
-        final String API_KEY = BuildConfig.MOVIE_DB_API_KEY;
+    private JSONObject fetchDataFromTMDB(String requestPath) {
+
         HttpURLConnection urlConnection = null;
 
-        String requestUri = Uri.parse(BASE_URI).buildUpon().appendQueryParameter(SORT_PARAM,sortBy)
-                .appendQueryParameter(API_KEY_PARAM,API_KEY).build().toString();
-
         try {
-            URL url = new URL(requestUri);
+            URL url = new URL(requestPath);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -68,7 +105,6 @@ public class FetchMovieTask extends AsyncTask<Void, Void, MovieData> {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
-
         }
         return null;
     }
@@ -89,12 +125,10 @@ public class FetchMovieTask extends AsyncTask<Void, Void, MovieData> {
         if (buffer.length() == 0) {
             return null;
         }
-        if (reader != null) {
-            try {
-                reader.close();
-            } catch (final IOException e) {
-                Log.e(LOG_TAG, "Error closing stream", e);
-            }
+        try {
+            reader.close();
+        } catch (final IOException e) {
+            Log.e(LOG_TAG, "Error closing stream", e);
         }
         return buffer.toString();
     }
