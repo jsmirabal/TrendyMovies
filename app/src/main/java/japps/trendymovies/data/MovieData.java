@@ -1,6 +1,8 @@
 package japps.trendymovies.data;
 
 
+import android.os.Bundle;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,7 +10,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieData implements MovieHandler{
+public class MovieData implements MovieHandler {
     public static final String TITLE_PARAM = "title";
     public static final String ORIGINAL_TITLE_PARAM = "original_title";
     public static final String SYNOPSIS_PARAM = "overview";
@@ -18,16 +20,23 @@ public class MovieData implements MovieHandler{
     public static final String RATE_PARAM = "vote_average";
     public static final String RUNTIME_PARAM = "runtime";
     public static final String POSTER_PATH_PARAM = "poster_path";
+    public static final String BACKDROP_PATH_PARAM = "backdrop_path";
     public static final String BASEPATH_W154 = "http://image.tmdb.org/t/p/w154";
     public static final String BASEPATH_W185 = "http://image.tmdb.org/t/p/w185";
     public static final String BASEPATH_W342 = "http://image.tmdb.org/t/p/w342";
     public static final String BASEPATH_W500 = "http://image.tmdb.org/t/p/w500";
+    private static final String TRAILER_THUMBNAIL_BASEPATH = "http://img.youtube.com/vi/";
+    private static final String TRAILER_BASEPATH = "https://www.youtube.com/watch?v=";
 
-    private final String TRAILERS_PARAM = "trailers";
-    private final String YOUTUBE_PARAM = "youtube";
-    private final String SOURCE_PARAM = "source";
-    private final String REVIEWS_PARAM = "reviews";
+    public static final String TRAILERS_PARAM = "trailers";
+    public static final String TRAILER_THUMBNAIL_PARAM = "trailer_thumbnail";
+    public static final String REVIEWS_PARAM = "reviews";
+    public static final String TRAILER_SOURCE_PARAM = "source";
+    public static final String TRAILER_NAME_PARAM = "name";
+    public static final String TRAILERS_COUNT = "has_trailer";
+
     private final String RESULTS_PARAM = "results";
+    private final String YOUTUBE_PARAM = "youtube";
 
     private JSONObject mJsonData;
     private String movieTitle;
@@ -39,16 +48,19 @@ public class MovieData implements MovieHandler{
     private double movieRate;
     private int movieRuntime;
     private String moviePosterPath;
-    private List<String> trailersList;
-    private List<String> reviewsList;
+    private String movieBackdropPath;
+    private Bundle trailerBundle;
+    private List<String> reviewBundle;
 
     public MovieData(JSONObject jsonData) throws JSONException {
-        if (jsonData == null) {return;}
+        if (jsonData == null) {
+            return;
+        }
         mJsonData = jsonData;
         setData();
     }
 
-     private void setData() throws JSONException {
+    private void setData() throws JSONException {
         movieTitle = mJsonData.getString(TITLE_PARAM);
         movieOriginalTitle = mJsonData.getString(ORIGINAL_TITLE_PARAM);
         movieSynopsis = mJsonData.getString(SYNOPSIS_PARAM);
@@ -58,25 +70,39 @@ public class MovieData implements MovieHandler{
         movieRate = mJsonData.getDouble(RATE_PARAM);
         movieRuntime = mJsonData.getInt(RUNTIME_PARAM);
         moviePosterPath = mJsonData.getString(POSTER_PATH_PARAM);
+        movieBackdropPath = mJsonData.getString(BACKDROP_PATH_PARAM);
 
         JSONArray trailers = mJsonData.getJSONObject(TRAILERS_PARAM).getJSONArray(YOUTUBE_PARAM);
         JSONArray reviews = mJsonData.getJSONObject(REVIEWS_PARAM).getJSONArray(RESULTS_PARAM);
 
-        if (trailers.length() > 0){
-            trailersList = new ArrayList<>();
-            for (int j = 0; j < trailers.length(); j++){
-                trailersList.add(trailers.getJSONObject(j).getString(SOURCE_PARAM));
+        trailerBundle = new Bundle();
+        trailerBundle.putInt(TRAILERS_COUNT, trailers.length());
+        if (trailers.length() > 0) {
+            ArrayList<String> nameList = new ArrayList<>();
+            ArrayList<String> trailerPathList = new ArrayList<>();
+            ArrayList<String> thumbnailPathList = new ArrayList<>();
+            for (int j = 0; j < trailers.length(); j++) {
+                String name = trailers.getJSONObject(j).getString(TRAILER_NAME_PARAM);
+                String videoId = trailers.getJSONObject(j).getString(TRAILER_SOURCE_PARAM);
+                String trailerPath = TRAILER_BASEPATH + videoId;
+                String thumbnailPath = TRAILER_THUMBNAIL_BASEPATH + videoId + "/0.jpg";
+
+                nameList.add(name);
+                trailerPathList.add(trailerPath);
+                thumbnailPathList.add(thumbnailPath);
             }
+            trailerBundle.putStringArrayList(TRAILER_SOURCE_PARAM, trailerPathList);
+            trailerBundle.putStringArrayList(TRAILER_NAME_PARAM, nameList);
+            trailerBundle.putStringArrayList(TRAILER_THUMBNAIL_PARAM, thumbnailPathList);
         }
 
-        if (reviews.length() > 0){
-            reviewsList = new ArrayList<>();
-            for (int j = 0; j < reviews.length(); j++){
-                //reviewsList.add(reviews.getJSONObject(j).getString(SOURCE_PARAM));
+        reviewBundle = new ArrayList<>();
+        if (reviews.length() > 0) {
+            for (int j = 0; j < reviews.length(); j++) {
+                //reviewBundle.add(reviews.getJSONObject(j).getString(TRAILER_SOURCE_PARAM));
             }
         }
     }
-
 
 
     public String getMovieTitle() {
@@ -104,7 +130,11 @@ public class MovieData implements MovieHandler{
     }
 
     public String getMoviePosterPath() {
-        return BASEPATH_W342+moviePosterPath;
+        return BASEPATH_W342 + moviePosterPath;
+    }
+
+    public String getMovieBackdropPath() {
+        return BASEPATH_W342 + movieBackdropPath;
     }
 
     public String getImdbId() {
@@ -115,11 +145,11 @@ public class MovieData implements MovieHandler{
         return movieRuntime;
     }
 
-    public List<String> getTrailersList() {
-        return trailersList;
+    public Bundle getTrailerBundle() {
+        return trailerBundle;
     }
 
-    public List<String> getReviewsList() {
-        return reviewsList;
+    public List<String> getReviewBundle() {
+        return reviewBundle;
     }
 }

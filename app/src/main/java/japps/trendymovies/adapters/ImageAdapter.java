@@ -1,4 +1,4 @@
-package japps.trendymovies.data;
+package japps.trendymovies.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,10 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import japps.trendymovies.R;
 
 /**
  * Created by Julio on 10/2/2016.
@@ -56,12 +60,22 @@ public class ImageAdapter extends BaseAdapter{
         imageView = (ImageView) view.findViewById(mImageViewId);
         if (mItems.get(position) != null) {
             String imgPath = mItems.get(position);
-//            imageView.setImageResource(imgPath);
-            Picasso.with(mContext).load(imgPath).into(imageView);
+            final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+            Picasso.with(mContext).load(imgPath).into(imageView, new Callback() {
+                @Override
+                public void onSuccess() {
+                    progressBar.setVisibility(ProgressBar.GONE);
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
         } else {
             throw new IllegalArgumentException("There are not items to process");
         }
 
-        return imageView;
+        return view;
     }
 }

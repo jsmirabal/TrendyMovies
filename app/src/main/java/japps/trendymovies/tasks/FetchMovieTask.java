@@ -55,6 +55,7 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
                         .appendQueryParameter(ATR_PARAM, "trailers,reviews")
                         .appendQueryParameter(API_KEY_PARAM,API_KEY)
                         .build().toString();
+                Log.d("Single Movie", requestPath);
                 jsonData = fetchDataFromTMDB(requestPath);
                 try {
                     MovieHandler movie = new MovieData(jsonData);
@@ -71,6 +72,7 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
                         .appendQueryParameter(SORT_PARAM, sortBy)
                         .appendQueryParameter(API_KEY_PARAM,API_KEY)
                         .build().toString();
+                Log.d("Movie List", requestPath);
                 jsonData = fetchDataFromTMDB(requestPath);
                 try {
                     MovieHandler movieList = new MovieListData(jsonData);

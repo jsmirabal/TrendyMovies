@@ -15,7 +15,7 @@ import android.widget.GridView;
 import japps.trendymovies.R;
 import japps.trendymovies.activities.MainActivity;
 import japps.trendymovies.activities.MovieDetailActivity;
-import japps.trendymovies.data.ImageAdapter;
+import japps.trendymovies.adapters.ImageAdapter;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
 import japps.trendymovies.data.MovieListData;
@@ -68,9 +68,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 intent.putExtra(MovieData.TITLE_PARAM,movieData.getMovieTitle());
                 intent.putExtra(MovieData.SYNOPSIS_PARAM,movieData.getMovieSynopsis());
                 intent.putExtra(MovieData.POSTER_PATH_PARAM,movieData.getMoviePosterPath());
+                intent.putExtra(MovieData.BACKDROP_PATH_PARAM,movieData.getMovieBackdropPath());
                 intent.putExtra(MovieData.RELEASE_DATE_PARAM,movieData.getMovieReleaseDate());
                 intent.putExtra(MovieData.RUNTIME_PARAM,movieData.getMovieRuntime());
                 intent.putExtra(MovieData.RATE_PARAM,movieData.getMovieRate());
+                intent.putExtra(MovieData.TRAILERS_PARAM,movieData.getTrailerBundle());
                 mContext.startActivity(intent);
             }
 

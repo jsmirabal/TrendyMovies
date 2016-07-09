@@ -2,12 +2,17 @@ package japps.trendymovies.activities;
 
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import japps.trendymovies.R;
-import japps.trendymovies.fragments.MovieDetailFragment;
+import japps.trendymovies.adapters.MovieDetailPagerAdapter;
+import japps.trendymovies.fragments.MovieOverviewFragment;
+import japps.trendymovies.fragments.MovieTrailerFragment;
 
 
 /**
@@ -16,6 +21,7 @@ import japps.trendymovies.fragments.MovieDetailFragment;
 public class MovieDetailActivity extends AppCompatActivity {
 
     private int count;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,9 +29,18 @@ public class MovieDetailActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             return;
         }
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_movie_detail, new MovieDetailFragment())
-                .commit();
+        ViewPager viewPager = (ViewPager) findViewById(R.id.pagerView);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        MovieDetailPagerAdapter pagerAdapter = new MovieDetailPagerAdapter(getSupportFragmentManager());
+        pagerAdapter.addPage(new MovieOverviewFragment(), getString(R.string.tab_overview));
+        pagerAdapter.addPage(new MovieTrailerFragment(), getString(R.string.tab_trailers));
+        viewPager.setAdapter(pagerAdapter);
+        tabLayout.setupWithViewPager(viewPager);
+//        getSupportFragmentManager().beginTransaction()
+//                .add(R.id.activity_movie_detail, new MovieOverviewFragment())
+//                .commit();
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setElevation(0);
         count = 0;
     }
 
