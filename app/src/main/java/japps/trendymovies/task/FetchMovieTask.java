@@ -1,4 +1,4 @@
-package japps.trendymovies.tasks;
+package japps.trendymovies.task;
 
 import android.content.Context;
 import android.net.Uri;
@@ -19,7 +19,6 @@ import japps.trendymovies.BuildConfig;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
 import japps.trendymovies.data.MovieListData;
-import japps.trendymovies.utilities.Utils;
 
 /**
  * Created by Julio on 9/2/2016.
@@ -51,7 +50,8 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
         switch(fetchType){
             case FETCH_MOVIE:{
                 requestPath = Uri.parse(BASE_URI_MOVIE+movieId).buildUpon()
-                        .appendQueryParameter(LANG_PARAM, Utils.getLocale())
+//                        .appendQueryParameter(LANG_PARAM, Utils.getLocale())
+                        .appendQueryParameter(LANG_PARAM, "en")
                         .appendQueryParameter(ATR_PARAM, "trailers,reviews")
                         .appendQueryParameter(API_KEY_PARAM,API_KEY)
                         .build().toString();

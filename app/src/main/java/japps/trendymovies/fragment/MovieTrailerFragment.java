@@ -1,4 +1,4 @@
-package japps.trendymovies.fragments;
+package japps.trendymovies.fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import japps.trendymovies.R;
-import japps.trendymovies.activities.MovieDetailActivity;
+import japps.trendymovies.activity.MovieDetailActivity;
 import japps.trendymovies.data.MovieData;
 
 /**

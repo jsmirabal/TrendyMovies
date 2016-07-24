@@ -1,4 +1,4 @@
-package japps.trendymovies.activities;
+package japps.trendymovies.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -11,7 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import japps.trendymovies.R;
-import japps.trendymovies.fragments.MainFragment;
+import japps.trendymovies.fragment.MainFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener

@@ -1,4 +1,4 @@
-package japps.trendymovies.fragments;
+package japps.trendymovies.fragment;
 
 
 import android.content.Context;
@@ -17,9 +17,9 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import japps.trendymovies.R;
-import japps.trendymovies.activities.MovieDetailActivity;
+import japps.trendymovies.activity.MovieDetailActivity;
 import japps.trendymovies.data.MovieData;
-import japps.trendymovies.utilities.Utils;
+import japps.trendymovies.utility.Utils;
 
 /**
  * Created by Julio on 28/1/2016.
@@ -37,7 +37,6 @@ public class MovieOverviewFragment extends Fragment {
         mContext = getActivity();
         setSynopsisViewScrolling(rootView);
         setMovieDataToViews(rootView);
-        //addTrailerButtons(rootView, inflater, container);
         return rootView;
     }
 
@@ -73,10 +72,6 @@ public class MovieOverviewFragment extends Fragment {
                 e,
                 f
         ));
-    }
-
-    private void addTrailerButtons(View rootView, LayoutInflater inflater, ViewGroup container) {
-
     }
 
     public void setSynopsisViewScrolling(View rootView) {

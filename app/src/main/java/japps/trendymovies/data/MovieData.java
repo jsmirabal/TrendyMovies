@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MovieData implements MovieHandler {
     public static final String TITLE_PARAM = "title";
@@ -21,6 +20,13 @@ public class MovieData implements MovieHandler {
     public static final String RUNTIME_PARAM = "runtime";
     public static final String POSTER_PATH_PARAM = "poster_path";
     public static final String BACKDROP_PATH_PARAM = "backdrop_path";
+    public static final String GENRES_PARAM = "genres";
+    public static final String POPULARITY_PARAM = "popularity";
+    public static final String ORIGINAL_LANG_PARAM = "original_language";
+    public static final String BUDGET_PARAM = "budget";
+    public static final String REVENUE_PARAM = "revenue";
+    public static final String VOTES_PARAM = "vote_count";
+
     public static final String BASEPATH_W154 = "http://image.tmdb.org/t/p/w154";
     public static final String BASEPATH_W185 = "http://image.tmdb.org/t/p/w185";
     public static final String BASEPATH_W342 = "http://image.tmdb.org/t/p/w342";
@@ -31,6 +37,7 @@ public class MovieData implements MovieHandler {
     public static final String TRAILERS_PARAM = "trailers";
     public static final String TRAILER_THUMBNAIL_PARAM = "trailer_thumbnail";
     public static final String REVIEWS_PARAM = "reviews";
+    private static final String GENRE_NAME_PARAM = "name";
     public static final String TRAILER_SOURCE_PARAM = "source";
     public static final String TRAILER_NAME_PARAM = "name";
     public static final String TRAILERS_COUNT = "has_trailer";
@@ -50,7 +57,13 @@ public class MovieData implements MovieHandler {
     private String moviePosterPath;
     private String movieBackdropPath;
     private Bundle trailerBundle;
-    private List<String> reviewBundle;
+    private Bundle reviewBundle;
+    private Bundle genresBundle;
+    private String movieVotes;
+    private double moviePopularity;
+    private String movieOriginalLang;
+    private long movieBudget;
+    private long movieRevenue;
 
     public MovieData(JSONObject jsonData) throws JSONException {
         if (jsonData == null) {
@@ -71,9 +84,24 @@ public class MovieData implements MovieHandler {
         movieRuntime = mJsonData.getInt(RUNTIME_PARAM);
         moviePosterPath = mJsonData.getString(POSTER_PATH_PARAM);
         movieBackdropPath = mJsonData.getString(BACKDROP_PATH_PARAM);
+        movieVotes = mJsonData.getString(VOTES_PARAM);
+        moviePopularity = mJsonData.getDouble(POPULARITY_PARAM);
+        movieOriginalLang = mJsonData.getString(ORIGINAL_LANG_PARAM);
+        movieBudget = mJsonData.getLong(BUDGET_PARAM);
+        movieRevenue = mJsonData.getLong(REVENUE_PARAM);
 
         JSONArray trailers = mJsonData.getJSONObject(TRAILERS_PARAM).getJSONArray(YOUTUBE_PARAM);
         JSONArray reviews = mJsonData.getJSONObject(REVIEWS_PARAM).getJSONArray(RESULTS_PARAM);
+        JSONArray genres = mJsonData.getJSONArray(GENRES_PARAM);
+
+        genresBundle = new Bundle();
+        if (genres.length() > 0){
+            ArrayList<String> genreList = new ArrayList<>();
+            for (int j = 0; j < genres.length() ;j++){
+                genreList.add(genres.getJSONObject(j).getString(GENRE_NAME_PARAM));
+            }
+            genresBundle.putStringArrayList(GENRES_PARAM,genreList);
+        }
 
         trailerBundle = new Bundle();
         trailerBundle.putInt(TRAILERS_COUNT, trailers.length());
@@ -96,7 +124,7 @@ public class MovieData implements MovieHandler {
             trailerBundle.putStringArrayList(TRAILER_THUMBNAIL_PARAM, thumbnailPathList);
         }
 
-        reviewBundle = new ArrayList<>();
+        reviewBundle = new Bundle();
         if (reviews.length() > 0) {
             for (int j = 0; j < reviews.length(); j++) {
                 //reviewBundle.add(reviews.getJSONObject(j).getString(TRAILER_SOURCE_PARAM));
@@ -149,7 +177,31 @@ public class MovieData implements MovieHandler {
         return trailerBundle;
     }
 
-    public List<String> getReviewBundle() {
+    public Bundle getReviewBundle() {
         return reviewBundle;
+    }
+
+    public Bundle getGenresBundle() {
+        return genresBundle;
+    }
+
+    public String getMovieVotes() {
+        return movieVotes;
+    }
+
+    public double getMoviePopularity() {
+        return moviePopularity;
+    }
+
+    public String getMovieOriginalLang() {
+        return movieOriginalLang;
+    }
+
+    public long getMovieBudget() {
+        return movieBudget;
+    }
+
+    public long getMovieRevenue() {
+        return movieRevenue;
     }
 }

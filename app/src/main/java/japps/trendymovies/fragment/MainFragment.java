@@ -1,4 +1,4 @@
-package japps.trendymovies.fragments;
+package japps.trendymovies.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -13,14 +13,14 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import japps.trendymovies.R;
-import japps.trendymovies.activities.MainActivity;
-import japps.trendymovies.activities.MovieDetailActivity;
-import japps.trendymovies.adapters.ImageAdapter;
+import japps.trendymovies.activity.MainActivity;
+import japps.trendymovies.activity.MovieDetailActivity;
+import japps.trendymovies.adapter.ImageAdapter;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
 import japps.trendymovies.data.MovieListData;
-import japps.trendymovies.tasks.FetchMovieTask;
-import japps.trendymovies.utilities.Utils;
+import japps.trendymovies.task.FetchMovieTask;
+import japps.trendymovies.utility.Utils;
 
 /**
  * Created by Julio on 21/1/2016.
@@ -72,6 +72,13 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 intent.putExtra(MovieData.RELEASE_DATE_PARAM,movieData.getMovieReleaseDate());
                 intent.putExtra(MovieData.RUNTIME_PARAM,movieData.getMovieRuntime());
                 intent.putExtra(MovieData.RATE_PARAM,movieData.getMovieRate());
+                intent.putExtra(MovieData.POPULARITY_PARAM,movieData.getMoviePopularity());
+                intent.putExtra(MovieData.ORIGINAL_LANG_PARAM,movieData.getMovieOriginalLang());
+                intent.putExtra(MovieData.ORIGINAL_TITLE_PARAM,movieData.getMovieOriginalTitle());
+                intent.putExtra(MovieData.REVENUE_PARAM,movieData.getMovieRevenue());
+                intent.putExtra(MovieData.BUDGET_PARAM,movieData.getMovieBudget());
+                intent.putExtra(MovieData.VOTES_PARAM,movieData.getMovieVotes());
+                intent.putExtra(MovieData.GENRES_PARAM, movieData.getGenresBundle());
                 intent.putExtra(MovieData.TRAILERS_PARAM,movieData.getTrailerBundle());
                 mContext.startActivity(intent);
             }

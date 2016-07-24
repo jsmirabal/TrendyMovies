@@ -1,4 +1,4 @@
-package japps.trendymovies.adapters;
+package japps.trendymovies.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -18,7 +18,7 @@ import japps.trendymovies.R;
 /**
  * Created by Julio on 10/2/2016.
  */
-public class ImageAdapter extends BaseAdapter{
+public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     private int mLayout;
     private int mImageViewId;
