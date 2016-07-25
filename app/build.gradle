@@ -8,8 +8,8 @@ android {
         applicationId "japps.trendymovies"
         minSdkVersion 14
         targetSdkVersion 24
-        versionCode 2
-        versionName "0.0.6-alpha"
+        versionCode 4
+        versionName "0.1.0-alpha"
     }
     buildTypes {
         release {
@@ -29,5 +29,6 @@ dependencies {
     compile 'com.android.support:design:24.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'org.apmem.tools:layouts:1.10@aar'
-    compile 'com.android.support:cardview-v7:24.0.+'
+    compile 'com.android.support:cardview-v7:24.0.0'
+    compile 'com.android.support:recyclerview-v7:24.0.0'
 }

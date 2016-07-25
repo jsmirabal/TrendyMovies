@@ -80,6 +80,8 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 intent.putExtra(MovieData.VOTES_PARAM,movieData.getMovieVotes());
                 intent.putExtra(MovieData.GENRES_PARAM, movieData.getGenresBundle());
                 intent.putExtra(MovieData.TRAILERS_PARAM,movieData.getTrailerBundle());
+                intent.putExtra(MovieData.CAST_PARAM,movieData.getCastBundle());
+                intent.putExtra(MovieData.CREW_PARAM,movieData.getCrewBundle());
                 mContext.startActivity(intent);
             }
 

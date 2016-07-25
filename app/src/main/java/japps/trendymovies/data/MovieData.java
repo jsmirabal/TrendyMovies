@@ -42,28 +42,27 @@ public class MovieData implements MovieHandler {
     public static final String TRAILER_NAME_PARAM = "name";
     public static final String TRAILERS_COUNT = "has_trailer";
 
+    public static final String CREDITS_PARAM = "credits";
+    public static final String CAST_PARAM = "cast";
+    public static final String CAST_CHARACTER_PARAM = "character";
+    public static final String CAST_NAME_PARAM = "name";
+    public static final String CREW_PARAM = "crew";
+    public static final String CREW_JOB_PARAM = "job";
+    public static final String CREW_NAME_PARAM = "name";
+    public static final String PEOPLE_COUNT = "count";
+    public static final String PEOPLE_TYPE = "type";
+    public static final String PROFILE_PATH_PARAM = "profile_path";
+
     private final String RESULTS_PARAM = "results";
     private final String YOUTUBE_PARAM = "youtube";
 
     private JSONObject mJsonData;
-    private String movieTitle;
-    private String movieOriginalTitle;
-    private String movieSynopsis;
-    private String movieReleaseDate;
-    private int movieId;
-    private String imdbId;
-    private double movieRate;
-    private int movieRuntime;
-    private String moviePosterPath;
-    private String movieBackdropPath;
-    private Bundle trailerBundle;
-    private Bundle reviewBundle;
-    private Bundle genresBundle;
-    private String movieVotes;
-    private double moviePopularity;
-    private String movieOriginalLang;
-    private long movieBudget;
-    private long movieRevenue;
+    private String movieTitle, movieOriginalTitle, movieSynopsis, movieReleaseDate, moviePosterPath,
+            movieVotes, movieOriginalLang , movieBackdropPath, imdbId;
+    private int movieId, movieRuntime;
+    private double movieRate, moviePopularity;
+    private Bundle trailerBundle, reviewBundle, genresBundle, castBundle, crewBundle;
+    private long movieBudget, movieRevenue;
 
     public MovieData(JSONObject jsonData) throws JSONException {
         if (jsonData == null) {
@@ -74,6 +73,7 @@ public class MovieData implements MovieHandler {
     }
 
     private void setData() throws JSONException {
+        // Facts data
         movieTitle = mJsonData.getString(TITLE_PARAM);
         movieOriginalTitle = mJsonData.getString(ORIGINAL_TITLE_PARAM);
         movieSynopsis = mJsonData.getString(SYNOPSIS_PARAM);
@@ -93,7 +93,10 @@ public class MovieData implements MovieHandler {
         JSONArray trailers = mJsonData.getJSONObject(TRAILERS_PARAM).getJSONArray(YOUTUBE_PARAM);
         JSONArray reviews = mJsonData.getJSONObject(REVIEWS_PARAM).getJSONArray(RESULTS_PARAM);
         JSONArray genres = mJsonData.getJSONArray(GENRES_PARAM);
+        JSONArray cast = mJsonData.getJSONObject(CREDITS_PARAM).getJSONArray(CAST_PARAM);
+        JSONArray crew = mJsonData.getJSONObject(CREDITS_PARAM).getJSONArray(CREW_PARAM);
 
+        // Genres data
         genresBundle = new Bundle();
         if (genres.length() > 0){
             ArrayList<String> genreList = new ArrayList<>();
@@ -102,7 +105,8 @@ public class MovieData implements MovieHandler {
             }
             genresBundle.putStringArrayList(GENRES_PARAM,genreList);
         }
-
+        
+        // Trailer data
         trailerBundle = new Bundle();
         trailerBundle.putInt(TRAILERS_COUNT, trailers.length());
         if (trailers.length() > 0) {
@@ -124,6 +128,58 @@ public class MovieData implements MovieHandler {
             trailerBundle.putStringArrayList(TRAILER_THUMBNAIL_PARAM, thumbnailPathList);
         }
 
+        // Cast data
+        castBundle = new Bundle();
+        castBundle.putString(PEOPLE_TYPE, CAST_PARAM);
+        if (cast.length() > 0) {
+            int length = cast.length() > 6 ? 6 : cast.length();
+            castBundle.putInt(PEOPLE_COUNT, length);
+            ArrayList<String> nameList = new ArrayList<>();
+            ArrayList<String> characterList = new ArrayList<>();
+            ArrayList<String> profileList = new ArrayList<>();
+            for (int j = 0; j < length; j++) {
+                String name = cast.getJSONObject(j).getString(CAST_NAME_PARAM);
+                String character = cast.getJSONObject(j).getString(CAST_CHARACTER_PARAM);
+                String profile = cast.getJSONObject(j).getString(PROFILE_PATH_PARAM);
+                profile = profile.equals("null") ? "" : BASEPATH_W185 + profile;
+                nameList.add(name);
+                characterList.add(character);
+                profileList.add(profile);
+            }
+            castBundle.putStringArrayList(CAST_NAME_PARAM, nameList);
+            castBundle.putStringArrayList(CAST_CHARACTER_PARAM, characterList);
+            castBundle.putStringArrayList(PROFILE_PATH_PARAM, profileList);
+        } else {
+            castBundle.putInt(PEOPLE_COUNT, 0);
+        }
+
+        // Crew data
+        crewBundle = new Bundle();
+        crewBundle.putString(PEOPLE_TYPE, CREW_PARAM);
+        if (crew.length() > 0) {
+            int length = crew.length() > 6 ? 6 : crew.length();
+            crewBundle.putInt(PEOPLE_COUNT, length);
+            ArrayList<String> nameList = new ArrayList<>();
+            ArrayList<String> characterList = new ArrayList<>();
+            ArrayList<String> profileList = new ArrayList<>();
+            for (int j = 0; j < length; j++) {
+                String name = crew.getJSONObject(j).getString(CREW_NAME_PARAM);
+                String job = crew.getJSONObject(j).getString(CREW_JOB_PARAM);
+                String profile = crew.getJSONObject(j).getString(PROFILE_PATH_PARAM);
+                profile = profile.equals("null") ? "" : BASEPATH_W185 + profile;
+
+                nameList.add(name);
+                characterList.add(job);
+                profileList.add(profile);
+            }
+            crewBundle.putStringArrayList(CREW_NAME_PARAM, nameList);
+            crewBundle.putStringArrayList(CREW_JOB_PARAM, characterList);
+            crewBundle.putStringArrayList(PROFILE_PATH_PARAM, profileList);
+        } else {
+            crewBundle.putInt(PEOPLE_COUNT, 0);
+        }
+
+        // Reviews data
         reviewBundle = new Bundle();
         if (reviews.length() > 0) {
             for (int j = 0; j < reviews.length(); j++) {
@@ -203,5 +259,13 @@ public class MovieData implements MovieHandler {
 
     public long getMovieRevenue() {
         return movieRevenue;
+    }
+
+    public Bundle getCastBundle() {
+        return castBundle;
+    }
+
+    public Bundle getCrewBundle() {
+        return crewBundle;
     }
 }

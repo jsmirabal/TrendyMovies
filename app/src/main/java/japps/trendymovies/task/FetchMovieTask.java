@@ -52,7 +52,7 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
                 requestPath = Uri.parse(BASE_URI_MOVIE+movieId).buildUpon()
 //                        .appendQueryParameter(LANG_PARAM, Utils.getLocale())
                         .appendQueryParameter(LANG_PARAM, "en")
-                        .appendQueryParameter(ATR_PARAM, "trailers,reviews")
+                        .appendQueryParameter(ATR_PARAM, "trailers,reviews,credits")
                         .appendQueryParameter(API_KEY_PARAM,API_KEY)
                         .build().toString();
                 Log.d("Single Movie", requestPath);

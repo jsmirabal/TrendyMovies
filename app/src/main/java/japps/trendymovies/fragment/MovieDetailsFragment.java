@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 
 import japps.trendymovies.R;
 import japps.trendymovies.activity.MovieDetailActivity;
+import japps.trendymovies.adapter.MyRecyclerViewAdapter;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.utility.Utils;
 
@@ -47,10 +50,23 @@ public class MovieDetailsFragment extends Fragment {
         holder.revenueValueView.setText(Utils.formatCurrency(extras.getLong(MovieData.REVENUE_PARAM)));
         holder.rankingValueView.setText(Double.toString(extras.getDouble(MovieData.RATE_PARAM)));
         holder.votesValueView.setText(extras.getString(MovieData.VOTES_PARAM));
+
+        RecyclerView castRecyclerView = (RecyclerView) rootView.findViewById(R.id.cast_recycler_view);
+        RecyclerView crewRecyclerView = (RecyclerView) rootView.findViewById(R.id.crew_recycler_view);
+        RecyclerView.LayoutManager castManager = new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false);
+        RecyclerView.LayoutManager crewManager = new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false);
+        Bundle castBundle = extras.getBundle(MovieData.CAST_PARAM);
+        Bundle crewBundle = extras.getBundle(MovieData.CREW_PARAM);
+        MyRecyclerViewAdapter castAdapter = new MyRecyclerViewAdapter(castBundle);
+        MyRecyclerViewAdapter crewAdapter = new MyRecyclerViewAdapter(crewBundle);
+        castRecyclerView.setLayoutManager(castManager);
+        castRecyclerView.setAdapter(castAdapter);
+        crewRecyclerView.setLayoutManager(crewManager);
+        crewRecyclerView.setAdapter(crewAdapter);
         return rootView;
     }
 
-    public static class ViewHolder {
+    public static class ViewHolder{
         public TextView genreValueView;
         public TextView releaseDateValueView;
         public TextView popularityValueView;
