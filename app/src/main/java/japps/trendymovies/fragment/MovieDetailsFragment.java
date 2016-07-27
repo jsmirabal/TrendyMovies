@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import japps.trendymovies.R;
 import japps.trendymovies.activity.MovieDetailActivity;
-import japps.trendymovies.adapter.MyRecyclerViewAdapter;
+import japps.trendymovies.adapter.PersonRecyclerAdapter;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.utility.Utils;
 
@@ -57,8 +57,8 @@ public class MovieDetailsFragment extends Fragment {
         RecyclerView.LayoutManager crewManager = new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false);
         Bundle castBundle = extras.getBundle(MovieData.CAST_PARAM);
         Bundle crewBundle = extras.getBundle(MovieData.CREW_PARAM);
-        MyRecyclerViewAdapter castAdapter = new MyRecyclerViewAdapter(castBundle);
-        MyRecyclerViewAdapter crewAdapter = new MyRecyclerViewAdapter(crewBundle);
+        PersonRecyclerAdapter castAdapter = new PersonRecyclerAdapter(castBundle);
+        PersonRecyclerAdapter crewAdapter = new PersonRecyclerAdapter(crewBundle);
         castRecyclerView.setLayoutManager(castManager);
         castRecyclerView.setAdapter(castAdapter);
         crewRecyclerView.setLayoutManager(crewManager);

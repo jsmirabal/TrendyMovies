@@ -17,8 +17,8 @@
     <string name="tab_reviews">Reviews</string>
 
     <!-- Prepared messages ..................................................................... -->
-    <string name="no_trailers">There are not trailers available for this language</string>
     <string name="no_trailer_string">There is not trailer available for this language.</string>
+    <string name="no_review_string">There are not reviews available for this language.</string>
 
     <!-- Dummy data ............................................................................ -->
 

@@ -19,20 +19,20 @@ import japps.trendymovies.data.MovieData;
 /**
  * Created by Julio on 24/7/2016.
  */
-public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
+public class PersonRecyclerAdapter extends RecyclerView.Adapter<PersonRecyclerAdapter.ViewHolder> {
 
     private Bundle mData;
     private String mPeopleType;
-    public MyRecyclerViewAdapter(Bundle data) {
+    public PersonRecyclerAdapter(Bundle data) {
         mData = data;
         mPeopleType = mData.getString(MovieData.PEOPLE_TYPE);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycler_view_item, parent, false);
-        return new ViewHolder(itemView);
+        View rootView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.recycler_people_item, parent, false);
+        return new ViewHolder(rootView);
     }
 
     @Override

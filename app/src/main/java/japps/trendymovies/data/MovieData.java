@@ -21,6 +21,7 @@ public class MovieData implements MovieHandler {
     public static final String POSTER_PATH_PARAM = "poster_path";
     public static final String BACKDROP_PATH_PARAM = "backdrop_path";
     public static final String GENRES_PARAM = "genres";
+    private static final String GENRE_NAME_PARAM = "name";
     public static final String POPULARITY_PARAM = "popularity";
     public static final String ORIGINAL_LANG_PARAM = "original_language";
     public static final String BUDGET_PARAM = "budget";
@@ -36,11 +37,15 @@ public class MovieData implements MovieHandler {
 
     public static final String TRAILERS_PARAM = "trailers";
     public static final String TRAILER_THUMBNAIL_PARAM = "trailer_thumbnail";
-    public static final String REVIEWS_PARAM = "reviews";
-    private static final String GENRE_NAME_PARAM = "name";
+
     public static final String TRAILER_SOURCE_PARAM = "source";
     public static final String TRAILER_NAME_PARAM = "name";
     public static final String TRAILERS_COUNT = "has_trailer";
+
+    public static final String REVIEWS_PARAM = "reviews";
+    public static final String REVIEWS_AUTHOR_PARAM = "author";
+    public static final String REVIEWS_CONTENT_PARAM = "content";
+    public static final String REVIEWS_COUNT = "count";
 
     public static final String CREDITS_PARAM = "credits";
     public static final String CAST_PARAM = "cast";
@@ -106,7 +111,7 @@ public class MovieData implements MovieHandler {
             genresBundle.putStringArrayList(GENRES_PARAM,genreList);
         }
         
-        // Trailer data
+        // Trailers data
         trailerBundle = new Bundle();
         trailerBundle.putInt(TRAILERS_COUNT, trailers.length());
         if (trailers.length() > 0) {
@@ -181,10 +186,18 @@ public class MovieData implements MovieHandler {
 
         // Reviews data
         reviewBundle = new Bundle();
+        reviewBundle.putInt(REVIEWS_COUNT, reviews.length());
         if (reviews.length() > 0) {
+            ArrayList<String> authorList = new ArrayList<>();
+            ArrayList<String> contentList = new ArrayList<>();
             for (int j = 0; j < reviews.length(); j++) {
-                //reviewBundle.add(reviews.getJSONObject(j).getString(TRAILER_SOURCE_PARAM));
+                String author = reviews.getJSONObject(j).getString(REVIEWS_AUTHOR_PARAM);
+                String content = reviews.getJSONObject(j).getString(REVIEWS_CONTENT_PARAM);
+                authorList.add(author);
+                contentList.add(content);
             }
+            reviewBundle.putStringArrayList(REVIEWS_AUTHOR_PARAM, authorList);
+            reviewBundle.putStringArrayList(REVIEWS_CONTENT_PARAM, contentList);
         }
     }
 
