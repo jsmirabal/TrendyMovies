@@ -19,6 +19,13 @@
     <!-- Prepared messages ..................................................................... -->
     <string name="no_trailer_string">There is not trailer available for this language.</string>
     <string name="no_review_string">There are not reviews available for this language.</string>
+    <string name="developer_alias">\@jsmirabal</string>
+    <string name="most_popular_nav_label">Most Popular</string>
+    <string name="top_rated_nav_label">Top Rated</string>
+    <string name="upcoming_nav_label">Upcoming</string>
+    <string name="favourites_nav_label">Favourites</string>
+    <string name="now_playing_nav_label">Now Playing</string>
+    <string name="revenue_nav_label">Revenue</string>
 
     <!-- Dummy data ............................................................................ -->
 

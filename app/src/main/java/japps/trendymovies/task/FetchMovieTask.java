@@ -3,6 +3,8 @@ package japps.trendymovies.task;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -19,6 +21,7 @@ import japps.trendymovies.BuildConfig;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
 import japps.trendymovies.data.MovieListData;
+import japps.trendymovies.utility.Utils;
 
 /**
  * Created by Julio on 9/2/2016.
@@ -28,19 +31,25 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     private final String BASE_URI_MOVIE = "http://api.themoviedb.org/3/movie/";
     private final String BASE_URI_MOVIE_LIST = "http://api.themoviedb.org/3/discover/movie";
-    private final String BASE_URI_YOUTUBE = "https://www.youtube.com/watch";
     private final String API_KEY = BuildConfig.MOVIE_DB_API_KEY;
     public static final int FETCH_MOVIE = 1;
     public static final int FETCH_MOVIE_LIST = 2;
+    public static final String MOVIE_ID_KEY = "movie_id";
+    public static final String SORT_KEY = "sort";
+    public static final int MOST_POPULAR = 10;
+    public static final int TOP_RATED = 11;
+    public static final int UPCOMING = 12;
+    public static final int NOW_PLAYING = 13;
+    public static final int REVENUE = 14;
+
     private Context mContext;
 
     protected MovieHandler doInBackground(Object... params ) {
 
         if (!(params[0] instanceof Integer)){return null;}
-        if (!(params[1] instanceof String)){return null;}
+        if (!(params[1] instanceof Bundle)){return null;}
 
         Integer fetchType = (Integer) params[0];
-        String movieId = (String) params[1];
         final String SORT_PARAM = "sort_by";
         final String LANG_PARAM = "language";
         final String ATR_PARAM = "append_to_response";
@@ -49,6 +58,7 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
         JSONObject jsonData;
         switch(fetchType){
             case FETCH_MOVIE:{
+                String movieId = ((Bundle)params[1]).getString(MOVIE_ID_KEY);
                 requestPath = Uri.parse(BASE_URI_MOVIE+movieId).buildUpon()
 //                        .appendQueryParameter(LANG_PARAM, Utils.getLocale())
                         .appendQueryParameter(LANG_PARAM, "en")
@@ -58,8 +68,7 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
                 Log.d("Single Movie", requestPath);
                 jsonData = fetchDataFromTMDB(requestPath);
                 try {
-                    MovieHandler movie = new MovieData(jsonData);
-                    return movie;
+                    return new MovieData(jsonData);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e(LOG_TAG, "JSON ERROR: "+ e.getMessage());
@@ -67,11 +76,48 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
                 break;
             }
             case FETCH_MOVIE_LIST:{
-                String sortBy = "popularity.desc";
-                requestPath = Uri.parse(BASE_URI_MOVIE_LIST).buildUpon()
-                        .appendQueryParameter(SORT_PARAM, sortBy)
-                        .appendQueryParameter(API_KEY_PARAM,API_KEY)
-                        .build().toString();
+                int sortBy = ((Bundle)params[1]).getInt(SORT_KEY);
+                Uri.Builder requestUri = Uri.parse(BASE_URI_MOVIE_LIST).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM,API_KEY);
+                switch (sortBy){
+                    case MOST_POPULAR:{
+                        requestPath = requestUri.appendQueryParameter(SORT_PARAM, "popularity.desc")
+                                .build().toString();
+                        break;
+                    }
+                    case TOP_RATED:{
+                        requestPath = requestUri
+                                .appendQueryParameter(SORT_PARAM, "vote_average.desc")
+                                .appendQueryParameter("vote_count.gte", "150")
+                                .build().toString();
+                        break;
+                    }
+                    case UPCOMING:{
+                        requestPath = requestUri
+                                .appendQueryParameter(SORT_PARAM, "primary_release_date.asc")
+                                .appendQueryParameter("vote_count.gte", "10")
+                                .appendQueryParameter("primary_release_date.gte", Utils.getToday("yyyy-MM-dd"))
+                                .build().toString();
+                        break;
+                    }
+                    case NOW_PLAYING:{
+                        requestPath = requestUri
+                                .appendQueryParameter(SORT_PARAM, "popularity.desc")
+                                .appendQueryParameter("primary_release_date.gte", Utils.getDateFrom60days("yyyy-MM-dd"))
+                                .appendQueryParameter("primary_release_date.lte", Utils.getToday("yyyy-MM-dd"))
+                                .appendQueryParameter("vote_count.gte", "10")
+                                .build().toString();
+                        break;
+                    }
+                    case REVENUE:{
+                        requestPath = requestUri.appendQueryParameter(SORT_PARAM, "revenue.desc")
+                                .build().toString();
+                        break;
+                    }
+                    default:{
+                        requestPath = requestUri.build().toString();
+                    }
+                }
                 Log.d("Movie List", requestPath);
                 jsonData = fetchDataFromTMDB(requestPath);
                 try {
@@ -89,6 +135,7 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
         return null;
     }
 
+    @Nullable
     private JSONObject fetchDataFromTMDB(String requestPath) {
 
         HttpURLConnection urlConnection = null;

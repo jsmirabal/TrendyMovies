@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -101,4 +102,13 @@ public class Utils {
         return NumberFormat.getCurrencyInstance().format(value);
     }
 
+    public static String getToday(String pattern) {
+        return new SimpleDateFormat(pattern).format(new Date());
+    }
+    public static String getDateFrom60days(String pattern) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -60);
+        Date date = calendar.getTime();
+        return new SimpleDateFormat(pattern).format(date);
+    }
 }

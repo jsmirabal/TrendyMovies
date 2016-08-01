@@ -12,11 +12,15 @@ import android.view.MenuItem;
 
 import japps.trendymovies.R;
 import japps.trendymovies.fragment.MainFragment;
+import japps.trendymovies.task.FetchMovieTask;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
 
+    private MainFragment mMainFragment;
+    private int mItemSelected;
+    private static final String MAIN_FRAGMENT_TAG = "main_fragment";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,14 +32,19 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_container);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.action_navigation_drawer_open, R.string.action_navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         if (savedInstanceState == null){
-            getFragmentManager().beginTransaction().add(R.id.main_coordinator_layout,new MainFragment()).commit();
+            mMainFragment = new MainFragment();
+            mItemSelected = R.id.nav_most_popular;
+            getFragmentManager().beginTransaction()
+                    .add(R.id.main_coordinator_layout, mMainFragment, MAIN_FRAGMENT_TAG).commit();
+        } else {
+            mMainFragment = (MainFragment) getFragmentManager().findFragmentByTag(MAIN_FRAGMENT_TAG);
         }
     }
 
@@ -71,26 +80,38 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (mMainFragment != null && mItemSelected != id) {
+            mItemSelected = id;
+            switch (id){
+                case R.id.nav_most_popular:{
+                    mMainFragment.fetchMovieList(FetchMovieTask.MOST_POPULAR);
+                    break;
+                }
+                case R.id.nav_top_rated:{
+                    mMainFragment.fetchMovieList(FetchMovieTask.TOP_RATED);
+                    break;
+                }
+                case R.id.nav_upcoming:{
+                    mMainFragment.fetchMovieList(FetchMovieTask.UPCOMING);
+                    break;
+                }
+                case R.id.nav_now_playing:{
+                    mMainFragment.fetchMovieList(FetchMovieTask.NOW_PLAYING);
+                    break;
+                }
+                case R.id.nav_revenue:{
+                    mMainFragment.fetchMovieList(FetchMovieTask.REVENUE);
+                    break;
+                }
+//                case R.id.nav_favourites:{
+//
+//                }
+            }
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_container);
         drawer.closeDrawer(GravityCompat.START);
         return true;

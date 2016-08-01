@@ -12,6 +12,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 import japps.trendymovies.R;
 import japps.trendymovies.activity.MainActivity;
 import japps.trendymovies.activity.MovieDetailActivity;
@@ -20,7 +23,6 @@ import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
 import japps.trendymovies.data.MovieListData;
 import japps.trendymovies.task.FetchMovieTask;
-import japps.trendymovies.utility.Utils;
 
 /**
  * Created by Julio on 21/1/2016.
@@ -29,33 +31,45 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     private ImageAdapter mAdapter;
     private GridView mGrid;
     private Context mContext;
-    private MovieHandler mMovies;
+    private MovieHandler mMovieHandler;
+    private ArrayList<String> mMovieList;
     private FetchMovieTask task;
     private final String LOG_TAG = MainFragment.class.getSimpleName();
+    private final String MOVIE_LIST = "movie_list";
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final int fragmentMainRes = R.layout.fragment_main;
-        final int imageViewId = R.id.poster_view;
-        final int gridItemRes = R.layout.list_item_poster;
-
-        if (savedInstanceState != null) {
-            Log.d(LOG_TAG, "onCreateView " + savedInstanceState.getString("state"));
-        }
 
         View root = inflater.inflate(fragmentMainRes, container, false);
 
-        mAdapter = new ImageAdapter(mContext, gridItemRes, imageViewId);
-
         mGrid = (GridView) root.findViewById(R.id.gridView);
         mGrid.setOnItemClickListener(this);
-        Log.d(LOG_TAG, "LOCALE: " + Utils.getLocale());
+
+        Log.d(LOG_TAG, "LOCALE: " + Locale.getDefault());
 
         return root;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mAdapter = new ImageAdapter(mContext, R.layout.list_item_poster, R.id.poster_view);
+        if (savedInstanceState != null){
+            mMovieList = (ArrayList<String>) savedInstanceState.getSerializable(MOVIE_LIST);
+            mAdapter.setItems(mMovieList);
+            mGrid.setAdapter(mAdapter);
+        } else {
+            fetchMovieList(FetchMovieTask.MOST_POPULAR);
+        }
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        String movieId = ((MovieListData) mMovieHandler).getMovieIdList().get(position);
+        Bundle params = new Bundle();
+        params.putString(FetchMovieTask.MOVIE_ID_KEY, movieId);
         task = new FetchMovieTask() {
             @Override
             protected void onPostExecute(MovieHandler data) {
@@ -87,16 +101,20 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
             }
 
         };
-        task.execute(FetchMovieTask.FETCH_MOVIE, ((MovieListData) mMovies).getMovieIdList().get(position));
+        task.execute(FetchMovieTask.FETCH_MOVIE,params);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mContext = getActivity();
         ActionBar actionBar = ((MainActivity) mContext).getSupportActionBar();
-        if (actionBar != null) actionBar.setElevation(0);
+        if (actionBar != null) {actionBar.setElevation(0);}
+    }
+
+    public void fetchMovieList (int sortBy) {
+        Bundle params = new Bundle();
+        params.putInt(FetchMovieTask.SORT_KEY, sortBy);
         task = new FetchMovieTask() {
             @Override
             protected void onPostExecute(MovieHandler data) {
@@ -104,11 +122,18 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 if (data == null) {
                     return;
                 }
-                mMovies = data;
-                mAdapter.setItems(((MovieListData) data).getMoviePosterPathList());
+                mMovieHandler = data;
+                mMovieList = (ArrayList<String>) ((MovieListData) data).getMoviePosterPathList();
+                mAdapter.setItems(mMovieList);
                 mGrid.setAdapter(mAdapter);
             }
         };
-        task.execute(FetchMovieTask.FETCH_MOVIE_LIST, "");
+        task.execute(FetchMovieTask.FETCH_MOVIE_LIST, params);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(MOVIE_LIST,mMovieList);
     }
 }
