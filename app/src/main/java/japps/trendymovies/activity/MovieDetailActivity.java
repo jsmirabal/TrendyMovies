@@ -57,8 +57,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.movie_detail_action_fav){
             count++;
-            if (count == 1){item.setIcon(android.R.drawable.star_on);}
-            if (count == 2){item.setIcon(android.R.drawable.star_off); count = 0;}
+            if (count == 1){item.setIcon(R.drawable.favourite_on);}
+            if (count == 2){item.setIcon(R.drawable.favourite_off); count = 0;}
             return true;
         }
         return super.onOptionsItemSelected(item);

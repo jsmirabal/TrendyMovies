@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/movie_detail_action_fav"
-        android:icon="@android:drawable/star_off"
+        android:icon="@drawable/favourite_off"
         android:orderInCategory="100"
         android:title="FAV"
         app:showAsAction="ifRoom" />

@@ -18,7 +18,7 @@
         style="@android:style/Widget.Material.ProgressBar.Large"
         android:layout_gravity="center"
         android:elevation="2dp"
-        tools:targetApi="lollipop"/>
+        tools:targetApi="lollipop" />
 
     <ImageView
         android:id="@+id/thumbnail_view"
