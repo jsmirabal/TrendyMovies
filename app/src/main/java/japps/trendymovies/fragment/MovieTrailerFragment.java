@@ -91,7 +91,7 @@ public class MovieTrailerFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup viewGroup) {
-            ArrayList<String> listTitle = mTrailerBundle.getStringArrayList(MovieData.TRAILER_NAME_PARAM);
+            ArrayList<String> listTitle = mTrailerBundle.getStringArrayList(MovieData.TRAILER_TITLE_PARAM);
             ArrayList<String> listPath = mTrailerBundle.getStringArrayList(MovieData.TRAILER_SOURCE_PARAM);
             ArrayList<String> listThumbnailPath = mTrailerBundle.getStringArrayList(MovieData.TRAILER_THUMBNAIL_PARAM);
             View view = LayoutInflater.from(mContext).inflate(R.layout.list_item_trailer, viewGroup, false);

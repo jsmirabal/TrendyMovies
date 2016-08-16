@@ -37,6 +37,7 @@ public class MovieDbContract {
         public static final String COLUMN_REVENUE = "revenue";
         public static final String COLUMN_POSTER_PATH = "poster_path";
         public static final String COLUMN_BACKDROP_PATH = "backdrop_path";
+        public static final String COLUMN_POSTER_BLOB = "poster_blob";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE).build();
@@ -75,6 +76,8 @@ public class MovieDbContract {
         public static final String COLUMN_MOVIE_ID = "trailer_movie_id";
         public static final String COLUMN_TITLE = "trailer_title";
         public static final String COLUMN_SOURCE = "trailer_source";
+        public static final String COLUMN_THUMBNAIL_PATH = "trailer_thumbnail_path";
+        public static final String COLUMN_THUMBNAIL_BLOB = "trailer_thumbnail_blob";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILER).build();
@@ -124,6 +127,7 @@ public class MovieDbContract {
         public static final String COLUMN_NAME = "cast_name";
         public static final String COLUMN_CHARACTER = "cast_character";
         public static final String COLUMN_PROFILE_PATH = "cast_profile_path";
+        public static final String COLUMN_PROFILE_BLOB = "cast_profile_blob";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAST).build();
@@ -149,6 +153,7 @@ public class MovieDbContract {
         public static final String COLUMN_NAME = "crew_name";
         public static final String COLUMN_JOB = "crew_job";
         public static final String COLUMN_PROFILE_PATH = "crew_profile_path";
+        public static final String COLUMN_PROFILE_BLOB = "crew_profile_blob";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_CREW).build();

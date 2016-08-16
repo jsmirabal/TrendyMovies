@@ -1,6 +1,7 @@
 package japps.trendymovies.data;
 
 
+import android.content.Context;
 import android.os.Bundle;
 
 import org.json.JSONArray;
@@ -9,10 +10,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import japps.trendymovies.utility.Utilities;
+
 public class MovieData implements MovieHandler {
     public static final String TITLE_PARAM = "title";
     public static final String ORIGINAL_TITLE_PARAM = "original_title";
-    public static final String SYNOPSIS_PARAM = "overview";
+    public static final String OVERVIEW_PARAM = "overview";
     public static final String RELEASE_DATE_PARAM = "release_date";
     public static final String ID_PARAM = "id";
     public static final String IMDB_ID_PARAM = "imdb_id";
@@ -35,11 +38,12 @@ public class MovieData implements MovieHandler {
     private static final String TRAILER_THUMBNAIL_BASEPATH = "http://img.youtube.com/vi/";
     private static final String TRAILER_BASEPATH = "https://www.youtube.com/watch?v=";
 
+    public static final String DETAILS_PARAM = "details";
     public static final String TRAILERS_PARAM = "trailers";
     public static final String TRAILER_THUMBNAIL_PARAM = "trailer_thumbnail";
 
     public static final String TRAILER_SOURCE_PARAM = "source";
-    public static final String TRAILER_NAME_PARAM = "name";
+    public static final String TRAILER_TITLE_PARAM = "name";
     public static final String TRAILERS_COUNT = "has_trailer";
 
     public static final String REVIEWS_PARAM = "reviews";
@@ -57,38 +61,42 @@ public class MovieData implements MovieHandler {
     public static final String PEOPLE_COUNT = "count";
     public static final String PEOPLE_TYPE = "type";
     public static final String PROFILE_PATH_PARAM = "profile_path";
+    public static final String MOVIE_LIST_COUNT = "movie_list_count";
+    public static final String POSTER_BLOB_PARAM = "poster_blob";
 
     private final String RESULTS_PARAM = "results";
     private final String YOUTUBE_PARAM = "youtube";
-
+    private Context mContext;
     private JSONObject mJsonData;
     private String movieTitle, movieOriginalTitle, movieSynopsis, movieReleaseDate, moviePosterPath,
             movieVotes, movieOriginalLang , movieBackdropPath, imdbId;
     private int movieId, movieRuntime;
     private double movieRate, moviePopularity;
-    private Bundle trailerBundle, reviewBundle, genresBundle, castBundle, crewBundle;
+    private Bundle detailBundle, trailerBundle, reviewBundle, genresBundle, castBundle, crewBundle;
     private long movieBudget, movieRevenue;
+    private byte[] moviePosterBlob;
 
-    public MovieData(JSONObject jsonData) throws JSONException {
-        if (jsonData == null) {
-            return;
+    public MovieData(Context context, JSONObject jsonData) throws JSONException {
+        if (context != null && jsonData != null) {
+            mContext = context;
+            mJsonData = jsonData;
+            setData();
         }
-        mJsonData = jsonData;
-        setData();
     }
 
     private void setData() throws JSONException {
         // Facts data
         movieTitle = mJsonData.getString(TITLE_PARAM);
         movieOriginalTitle = mJsonData.getString(ORIGINAL_TITLE_PARAM);
-        movieSynopsis = mJsonData.getString(SYNOPSIS_PARAM);
+        movieSynopsis = mJsonData.getString(OVERVIEW_PARAM);
         movieReleaseDate = mJsonData.getString(RELEASE_DATE_PARAM);
         movieId = mJsonData.getInt(ID_PARAM);
         imdbId = mJsonData.getString(IMDB_ID_PARAM);
         movieRate = mJsonData.getDouble(RATE_PARAM);
         movieRuntime = mJsonData.getInt(RUNTIME_PARAM);
-        moviePosterPath = mJsonData.getString(POSTER_PATH_PARAM);
-        movieBackdropPath = mJsonData.getString(BACKDROP_PATH_PARAM);
+        moviePosterPath = BASEPATH_W342 + mJsonData.getString(POSTER_PATH_PARAM);
+        moviePosterBlob = Utilities.getImageBytesArrayFromPath(mContext, moviePosterPath);
+        movieBackdropPath = BASEPATH_W342 + mJsonData.getString(BACKDROP_PATH_PARAM);
         movieVotes = mJsonData.getString(VOTES_PARAM);
         moviePopularity = mJsonData.getDouble(POPULARITY_PARAM);
         movieOriginalLang = mJsonData.getString(ORIGINAL_LANG_PARAM);
@@ -103,13 +111,33 @@ public class MovieData implements MovieHandler {
 
         // Genres data
         genresBundle = new Bundle();
+        ArrayList<String> genreList = new ArrayList<>();
         if (genres.length() > 0){
-            ArrayList<String> genreList = new ArrayList<>();
             for (int j = 0; j < genres.length() ;j++){
                 genreList.add(genres.getJSONObject(j).getString(GENRE_NAME_PARAM));
             }
             genresBundle.putStringArrayList(GENRES_PARAM,genreList);
         }
+        
+        // Movie details data
+        detailBundle = new Bundle();              
+        detailBundle.putString(TITLE_PARAM,movieTitle);
+        detailBundle.putString(ORIGINAL_TITLE_PARAM ,movieOriginalTitle);
+        detailBundle.putString(GENRES_PARAM , Utilities.formatGenres(genreList));
+        detailBundle.putString(OVERVIEW_PARAM ,movieSynopsis);
+        detailBundle.putString(RELEASE_DATE_PARAM ,movieReleaseDate);
+        detailBundle.putInt(ID_PARAM ,movieId);
+        detailBundle.putString(IMDB_ID_PARAM ,imdbId);
+        detailBundle.putDouble(RATE_PARAM ,movieRate);
+        detailBundle.putInt(RUNTIME_PARAM ,movieRuntime);
+        detailBundle.putString(POSTER_PATH_PARAM ,moviePosterPath);
+        detailBundle.putByteArray(POSTER_BLOB_PARAM ,moviePosterBlob);
+        detailBundle.putString(BACKDROP_PATH_PARAM ,movieBackdropPath);
+        detailBundle.putString(VOTES_PARAM ,movieVotes);
+        detailBundle.putDouble(POPULARITY_PARAM ,moviePopularity);
+        detailBundle.putString(ORIGINAL_LANG_PARAM ,movieOriginalLang);
+        detailBundle.putLong(BUDGET_PARAM ,movieBudget);
+        detailBundle.putLong(REVENUE_PARAM ,movieRevenue);
         
         // Trailers data
         trailerBundle = new Bundle();
@@ -119,7 +147,7 @@ public class MovieData implements MovieHandler {
             ArrayList<String> trailerPathList = new ArrayList<>();
             ArrayList<String> thumbnailPathList = new ArrayList<>();
             for (int j = 0; j < trailers.length(); j++) {
-                String name = trailers.getJSONObject(j).getString(TRAILER_NAME_PARAM);
+                String name = trailers.getJSONObject(j).getString(TRAILER_TITLE_PARAM);
                 String videoId = trailers.getJSONObject(j).getString(TRAILER_SOURCE_PARAM);
                 String trailerPath = TRAILER_BASEPATH + videoId;
                 String thumbnailPath = TRAILER_THUMBNAIL_BASEPATH + videoId + "/0.jpg";
@@ -129,7 +157,7 @@ public class MovieData implements MovieHandler {
                 thumbnailPathList.add(thumbnailPath);
             }
             trailerBundle.putStringArrayList(TRAILER_SOURCE_PARAM, trailerPathList);
-            trailerBundle.putStringArrayList(TRAILER_NAME_PARAM, nameList);
+            trailerBundle.putStringArrayList(TRAILER_TITLE_PARAM, nameList);
             trailerBundle.putStringArrayList(TRAILER_THUMBNAIL_PARAM, thumbnailPathList);
         }
 
@@ -240,19 +268,7 @@ public class MovieData implements MovieHandler {
 
     public int getMovieRuntime() {
         return movieRuntime;
-    }
-
-    public Bundle getTrailerBundle() {
-        return trailerBundle;
-    }
-
-    public Bundle getReviewBundle() {
-        return reviewBundle;
-    }
-
-    public Bundle getGenresBundle() {
-        return genresBundle;
-    }
+    }    
 
     public String getMovieVotes() {
         return movieVotes;
@@ -272,6 +288,22 @@ public class MovieData implements MovieHandler {
 
     public long getMovieRevenue() {
         return movieRevenue;
+    }
+
+    public Bundle getDetailBundle() {
+        return detailBundle;
+    }
+    
+    public Bundle getTrailerBundle() {
+        return trailerBundle;
+    }
+
+    public Bundle getReviewBundle() {
+        return reviewBundle;
+    }
+
+    public Bundle getGenresBundle() {
+        return genresBundle;
     }
 
     public Bundle getCastBundle() {

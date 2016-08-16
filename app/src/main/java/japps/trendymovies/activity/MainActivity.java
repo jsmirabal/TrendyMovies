@@ -1,7 +1,12 @@
 package japps.trendymovies.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -21,6 +26,8 @@ public class MainActivity extends AppCompatActivity
     private MainFragment mMainFragment;
     private int mItemSelected;
     private static final String MAIN_FRAGMENT_TAG = "main_fragment";
+    private BroadcastReceiver mBroadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +53,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             mMainFragment = (MainFragment) getFragmentManager().findFragmentByTag(MAIN_FRAGMENT_TAG);
         }
+        setReceivers();
     }
 
     @Override
@@ -107,13 +115,30 @@ public class MainActivity extends AppCompatActivity
                     mMainFragment.fetchMovieList(FetchMovieTask.REVENUE);
                     break;
                 }
-//                case R.id.nav_favourites:{
-//
-//                }
+                case R.id.nav_favourites:{
+                    mMainFragment.fetchFavourites();
+                }
             }
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_container);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void setReceivers () {
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()){
+                    case MovieDetailActivity.FAVOURITE_REMOVED:{
+                        if (mMainFragment.isFavouriteViewActive()) {
+                            mMainFragment.fetchFavourites();
+                        }
+                    }
+                }
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mBroadcastReceiver, new IntentFilter(MovieDetailActivity.FAVOURITE_REMOVED));
     }
 }

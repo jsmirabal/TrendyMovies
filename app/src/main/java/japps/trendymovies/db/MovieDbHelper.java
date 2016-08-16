@@ -9,7 +9,7 @@ import japps.trendymovies.db.MovieDbContract.*;
  * Created by Julio on 31/7/2016.
  */
 public class MovieDbHelper extends SQLiteOpenHelper{    
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String DATABASE_NAME = "movie.db";
 
@@ -39,6 +39,7 @@ public class MovieDbHelper extends SQLiteOpenHelper{
 
                 MovieEntry.COLUMN_REVENUE + " INTEGER NULL, " +
                 MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_POSTER_BLOB + " BLOB NULL, " +
                 MovieEntry.COLUMN_BACKDROP_PATH + " TEXT NOT NULL, " +
                 
                 " PRIMARY KEY (" + MovieEntry._ID + "," + MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
@@ -48,6 +49,8 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 TrailerEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 TrailerEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_SOURCE + " TEXT NOT NULL, " +
+                TrailerEntry.COLUMN_THUMBNAIL_PATH + " TEXT NULL, " +
+                TrailerEntry.COLUMN_THUMBNAIL_BLOB + " BLOB NULL, " +
                 " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")); ";
         
@@ -65,6 +68,7 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 CastEntry.COLUMN_CHARACTER + " TEXT NOT NULL, " +
                 CastEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 CastEntry.COLUMN_PROFILE_PATH + " TEXT NOT NULL, " +
+                CastEntry.COLUMN_PROFILE_BLOB + " BLOB NULL, " +
                 " FOREIGN KEY (" + CastEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")); ";
         
@@ -74,6 +78,7 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 CrewEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 CrewEntry.COLUMN_JOB + " TEXT NOT NULL, " +
                 CrewEntry.COLUMN_PROFILE_PATH + " TEXT NOT NULL, " +
+                CrewEntry.COLUMN_PROFILE_BLOB + " BLOB NULL, " +
                 " FOREIGN KEY (" + CrewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")); ";
 

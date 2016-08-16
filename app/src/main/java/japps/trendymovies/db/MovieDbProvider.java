@@ -69,7 +69,7 @@ public class MovieDbProvider extends ContentProvider {
         sMovieQueryBuilder.setTables(MovieEntry.TABLE_NAME);
         sTrailerQueryBuilder.setTables(TrailerEntry.TABLE_NAME);
         sReviewQueryBuilder.setTables(ReviewEntry.TABLE_NAME);
-        sCastQueryBuilder.setTables(CastEntry.TABLE_NAME + " as c");
+        sCastQueryBuilder.setTables(CastEntry.TABLE_NAME);
         sCrewQueryBuilder.setTables(CrewEntry.TABLE_NAME);
     }
 
@@ -98,16 +98,11 @@ public class MovieDbProvider extends ContentProvider {
         return uriMatcher;
     }
 
-    public static final String sTableMovieIdSelection =
-            MovieEntry.TABLE_NAME + "." +MovieEntry.COLUMN_MOVIE_ID + " = ?" ;
-    public static final String sTableTrailerIdSelection =
-            TrailerEntry.TABLE_NAME + "." +TrailerEntry.COLUMN_MOVIE_ID + " = ?" ;
-    public static final String sTableReviewIdSelection =
-            ReviewEntry.TABLE_NAME + "." +ReviewEntry.COLUMN_MOVIE_ID + " = ?" ;
-    public static final String sTableCastIdSelection =
-             "c." +CastEntry.COLUMN_MOVIE_ID + " = ?" ;
-    public static final String sTableCrewIdSelection =
-            CrewEntry.TABLE_NAME + "." +CrewEntry.COLUMN_MOVIE_ID + " = ?" ;
+    public static final String sTableMovieIdSelection = MovieEntry.COLUMN_MOVIE_ID + " = ?" ;
+    public static final String sTableTrailerIdSelection = TrailerEntry.COLUMN_MOVIE_ID + " = ?" ;
+    public static final String sTableReviewIdSelection = ReviewEntry.COLUMN_MOVIE_ID + " = ?" ;
+    public static final String sTableCastIdSelection = CastEntry.COLUMN_MOVIE_ID + " = ?" ;
+    public static final String sTableCrewIdSelection = CrewEntry.COLUMN_MOVIE_ID + " = ?" ;
 
     private Cursor getMovie (String[] projection, String selection, String[] selectionArgs) {
         return sMovieQueryBuilder.query(mHelper.getReadableDatabase(),

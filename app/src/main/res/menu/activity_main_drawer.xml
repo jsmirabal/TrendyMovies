@@ -23,10 +23,10 @@
             android:id="@+id/nav_revenue"
             android:icon="@drawable/revenue"
             android:title="@string/revenue_nav_label" />
-        <!--<item-->
-            <!--android:id="@+id/nav_favourites"-->
-            <!--android:icon="@drawable/favourite"-->
-            <!--android:title="@string/favourites_nav_label" />-->
+        <item
+            android:id="@+id/nav_favourites"
+            android:icon="@drawable/favourite"
+            android:title="@string/favourites_nav_label" />
     </group>
 
 </menu>

@@ -21,7 +21,7 @@ import japps.trendymovies.BuildConfig;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
 import japps.trendymovies.data.MovieListData;
-import japps.trendymovies.utility.Utils;
+import japps.trendymovies.utility.Utilities;
 
 /**
  * Created by Julio on 9/2/2016.
@@ -48,8 +48,10 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
 
         if (!(params[0] instanceof Integer)){return null;}
         if (!(params[1] instanceof Bundle)){return null;}
+        if (!(params[2] instanceof Context)){return null;}
 
         Integer fetchType = (Integer) params[0];
+        mContext = (Context) params[2];
         final String SORT_PARAM = "sort_by";
         final String LANG_PARAM = "language";
         final String ATR_PARAM = "append_to_response";
@@ -60,15 +62,18 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
             case FETCH_MOVIE:{
                 String movieId = ((Bundle)params[1]).getString(MOVIE_ID_KEY);
                 requestPath = Uri.parse(BASE_URI_MOVIE+movieId).buildUpon()
-//                        .appendQueryParameter(LANG_PARAM, Utils.getLocale())
+//                        .appendQueryParameter(LANG_PARAM, Utilities.getLocale())
                         .appendQueryParameter(LANG_PARAM, "en")
                         .appendQueryParameter(ATR_PARAM, "trailers,reviews,credits")
                         .appendQueryParameter(API_KEY_PARAM,API_KEY)
                         .build().toString();
                 Log.d("Single Movie", requestPath);
                 jsonData = fetchDataFromTMDB(requestPath);
+                if (jsonData == null){
+                    return null;
+                }
                 try {
-                    return new MovieData(jsonData);
+                    return new MovieData(mContext, jsonData);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e(LOG_TAG, "JSON ERROR: "+ e.getMessage());
@@ -96,15 +101,15 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
                         requestPath = requestUri
                                 .appendQueryParameter(SORT_PARAM, "primary_release_date.asc")
                                 .appendQueryParameter("vote_count.gte", "10")
-                                .appendQueryParameter("primary_release_date.gte", Utils.getToday("yyyy-MM-dd"))
+                                .appendQueryParameter("primary_release_date.gte", Utilities.getToday("yyyy-MM-dd"))
                                 .build().toString();
                         break;
                     }
                     case NOW_PLAYING:{
                         requestPath = requestUri
                                 .appendQueryParameter(SORT_PARAM, "popularity.desc")
-                                .appendQueryParameter("primary_release_date.gte", Utils.getDateFrom60days("yyyy-MM-dd"))
-                                .appendQueryParameter("primary_release_date.lte", Utils.getToday("yyyy-MM-dd"))
+                                .appendQueryParameter("primary_release_date.gte", Utilities.getDateFrom60days("yyyy-MM-dd"))
+                                .appendQueryParameter("primary_release_date.lte", Utilities.getToday("yyyy-MM-dd"))
                                 .appendQueryParameter("vote_count.gte", "10")
                                 .build().toString();
                         break;
@@ -120,8 +125,11 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
                 }
                 Log.d("Movie List", requestPath);
                 jsonData = fetchDataFromTMDB(requestPath);
+                if (jsonData == null){
+                    return null;
+                }
                 try {
-                    MovieHandler movieList = new MovieListData(jsonData);
+                    MovieHandler movieList = new MovieListData(mContext, jsonData);
                     Log.d(LOG_TAG, ((MovieListData) movieList).getMovieIdList().toString());
                     return movieList;
                 } catch (JSONException e) {

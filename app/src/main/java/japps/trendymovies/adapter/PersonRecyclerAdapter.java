@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class PersonRecyclerAdapter extends RecyclerView.Adapter<PersonRecyclerAd
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         ArrayList<String> nameList = mData.getStringArrayList(MovieData.CAST_NAME_PARAM);;
         ArrayList<String> occupationList;
         ArrayList<String> profileList = mData.getStringArrayList(MovieData.PROFILE_PATH_PARAM);
@@ -56,17 +57,28 @@ public class PersonRecyclerAdapter extends RecyclerView.Adapter<PersonRecyclerAd
 
         }
 
-        String name = nameList == null || nameList.get(position).equals("") ? "-" : nameList.get(position);
-        String occupation = occupationList == null || occupationList.get(position).equals("") ? "-" : occupationList.get(position);
-        String profile = profileList == null || profileList.get(position).equals("") ? "" : profileList.get(position);
+        String name = nameList == null || nameList.isEmpty() ||
+                nameList.get(position).equals("") ? "-" : nameList.get(position);
+        String occupation = occupationList == null || occupationList.isEmpty() ||
+                occupationList.get(position).equals("") ? "-" : occupationList.get(position);
+        String profile = profileList == null || profileList.isEmpty() ? "" : profileList.get(position);
 
         holder.mProfileNameView.setText(name);
         holder.mProfileJobView.setText(occupation);
 
         if (!profile.equals("")){
-            Picasso.with(holder.getContext()).load(profile).into(holder.mProfileImageView);
+            Picasso.with(holder.getContext()).load(profile).into(holder.mProfileImageView,
+                    new Callback() {
+                        @Override
+                        public void onSuccess() {
+                        }
+                        @Override
+                        public void onError() {
+                            holder.mProfileImageView.setImageResource(R.drawable.dummy_profile_image);
+                        }
+                    });
         } else {
-            Picasso.with(holder.getContext()).load(R.drawable.dummy_profile_image).into(holder.mProfileImageView);
+            holder.mProfileImageView.setImageResource(R.drawable.dummy_profile_image);
         }
 
     }

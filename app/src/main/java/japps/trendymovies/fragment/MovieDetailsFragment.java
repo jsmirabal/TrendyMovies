@@ -1,7 +1,6 @@
 package japps.trendymovies.fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,7 +15,7 @@ import japps.trendymovies.R;
 import japps.trendymovies.activity.MovieDetailActivity;
 import japps.trendymovies.adapter.PersonRecyclerAdapter;
 import japps.trendymovies.data.MovieData;
-import japps.trendymovies.utility.Utils;
+import japps.trendymovies.utility.Utilities;
 
 /**
  * Created by Julio on 9/7/2016.
@@ -34,22 +33,19 @@ public class MovieDetailsFragment extends Fragment {
         }
         mContext = getActivity();
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
-        Intent intent = ((MovieDetailActivity) mContext).getIntent();
-        Bundle extras = intent.getExtras();
-
+        Bundle extras = ((MovieDetailActivity) mContext).getIntent().getExtras();
+        Bundle detailBundle = extras.getBundle(MovieData.DETAILS_PARAM);
         ViewHolder holder = new ViewHolder(rootView);
-        holder.genreValueView.setText(Utils.formatGenres(
-                extras.getBundle(MovieData.GENRES_PARAM).getStringArrayList(MovieData.GENRES_PARAM)
-        ));
-        holder.releaseDateValueView.setText(Utils.formatDate(extras.getString(MovieData.RELEASE_DATE_PARAM)));
-        holder.popularityValueView.setText(Utils.formatPopularity(extras.getDouble(MovieData.POPULARITY_PARAM)));
-        holder.runtimeValueView.setText(Utils.formatRuntime(extras.getInt(MovieData.RUNTIME_PARAM)));
-        holder.originalLangValueView.setText(Utils.formatLanguage(extras.getString(MovieData.ORIGINAL_LANG_PARAM)));
-        holder.originalTitleValueView.setText(extras.getString(MovieData.ORIGINAL_TITLE_PARAM));
-        holder.budgetValueView.setText(Utils.formatCurrency(extras.getLong(MovieData.BUDGET_PARAM)));
-        holder.revenueValueView.setText(Utils.formatCurrency(extras.getLong(MovieData.REVENUE_PARAM)));
-        holder.rankingValueView.setText(Double.toString(extras.getDouble(MovieData.RATE_PARAM)));
-        holder.votesValueView.setText(extras.getString(MovieData.VOTES_PARAM));
+        holder.genreValueView.setText(detailBundle.getString(MovieData.GENRES_PARAM));
+        holder.releaseDateValueView.setText(Utilities.formatDate(detailBundle.getString(MovieData.RELEASE_DATE_PARAM)));
+        holder.popularityValueView.setText(Utilities.formatPopularity(detailBundle.getDouble(MovieData.POPULARITY_PARAM)));
+        holder.runtimeValueView.setText(Utilities.formatRuntime(detailBundle.getInt(MovieData.RUNTIME_PARAM)));
+        holder.originalLangValueView.setText(Utilities.formatLanguage(detailBundle.getString(MovieData.ORIGINAL_LANG_PARAM)));
+        holder.originalTitleValueView.setText(detailBundle.getString(MovieData.ORIGINAL_TITLE_PARAM));
+        holder.budgetValueView.setText(Utilities.formatCurrency(detailBundle.getLong(MovieData.BUDGET_PARAM)));
+        holder.revenueValueView.setText(Utilities.formatCurrency(detailBundle.getLong(MovieData.REVENUE_PARAM)));
+        holder.rankingValueView.setText(Double.toString(detailBundle.getDouble(MovieData.RATE_PARAM)));
+        holder.votesValueView.setText(detailBundle.getString(MovieData.VOTES_PARAM));
 
         RecyclerView castRecyclerView = (RecyclerView) rootView.findViewById(R.id.cast_recycler_view);
         RecyclerView crewRecyclerView = (RecyclerView) rootView.findViewById(R.id.crew_recycler_view);
