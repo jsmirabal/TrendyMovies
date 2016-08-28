@@ -17,7 +17,7 @@
     <string name="tab_details">Details</string>
     <string name="tab_trailers">Trailers</string>
     <string name="tab_reviews">Reviews</string>
-    <string name="most_popular_nav_label">Most Popular</string>
+    <string name="trending_nav_label">Trending</string>
     <string name="top_rated_nav_label">Top Rated</string>
     <string name="upcoming_nav_label">Upcoming</string>
     <string name="favourites_nav_label">Favourites</string>

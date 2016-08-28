@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
 
         if (savedInstanceState == null){
             mMainFragment = new MainFragment();
-            mItemSelected = R.id.nav_most_popular;
+            mItemSelected = R.id.nav_trending;
             getFragmentManager().beginTransaction()
                     .add(R.id.main_coordinator_layout, mMainFragment, MAIN_FRAGMENT_TAG).commit();
         } else {
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity
         if (mMainFragment != null && mItemSelected != id) {
             mItemSelected = id;
             switch (id){
-                case R.id.nav_most_popular:{
+                case R.id.nav_trending:{
                     mMainFragment.fetchMovieList(FetchMovieTask.MOST_POPULAR);
                     break;
                 }

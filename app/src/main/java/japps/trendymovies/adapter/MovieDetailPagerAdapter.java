@@ -2,7 +2,7 @@ package japps.trendymovies.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,20 +10,18 @@ import java.util.List;
 /**
  * Created by Julio on 5/7/2016.
  */
-public class MovieDetailPagerAdapter extends FragmentStatePagerAdapter {
+public class MovieDetailPagerAdapter extends FragmentPagerAdapter {
 
     private List<Fragment> listFragment;
-    private List<String> listTitle;
 
     public MovieDetailPagerAdapter(FragmentManager fm) {
         super(fm);
         listFragment = new ArrayList<>();
-        listTitle = new ArrayList<>();
+
     }
 
-    public void addPage(Fragment fragment, String title){
+    public void addPage(Fragment fragment){
         listFragment.add(fragment);
-        listTitle.add(title);
     }
 
     @Override
@@ -36,8 +34,4 @@ public class MovieDetailPagerAdapter extends FragmentStatePagerAdapter {
         return listFragment.size();
     }
 
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return listTitle.get(position);
-    }
 }

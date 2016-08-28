@@ -3,10 +3,10 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_most_popular"
+            android:id="@+id/nav_trending"
             android:checked="true"
-            android:icon="@drawable/popular"
-            android:title="@string/most_popular_nav_label" />
+            android:icon="@drawable/trending"
+            android:title="@string/trending_nav_label" />
         <item
             android:id="@+id/nav_top_rated"
             android:icon="@drawable/top_rated"
