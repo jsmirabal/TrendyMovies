@@ -7,8 +7,13 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 
 import com.squareup.picasso.Picasso;
@@ -24,8 +29,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import japps.trendymovies.R;
+import japps.trendymovies.activity.MainActivity;
+import japps.trendymovies.activity.MovieDetailActivity;
+import japps.trendymovies.adapter.MovieDetailPagerAdapter;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.db.MovieDbProvider;
+import japps.trendymovies.fragment.MovieDetailsFragment;
+import japps.trendymovies.fragment.MovieOverviewFragment;
+import japps.trendymovies.fragment.MovieReviewFragment;
+import japps.trendymovies.fragment.MovieTrailerFragment;
 
 import static japps.trendymovies.db.MovieDbContract.CastEntry;
 import static japps.trendymovies.db.MovieDbContract.CrewEntry;
@@ -478,17 +491,17 @@ public class Utilities {
         return values;
     }
 
-    private static ContentValues buildDetailContentValues(Context context, Bundle detailBundle){
+    private static ContentValues buildDetailContentValues(Context context, Bundle detailBundle) {
         ContentValues cv = new ContentValues();
         cv.put(MovieEntry.COLUMN_TITLE,
                 detailBundle.getString(MovieData.TITLE_PARAM));
-        cv.put(MovieEntry.COLUMN_ORIGINAL_TITLE ,
+        cv.put(MovieEntry.COLUMN_ORIGINAL_TITLE,
                 detailBundle.getString(MovieData.ORIGINAL_TITLE_PARAM));
-        cv.put(MovieEntry.COLUMN_OVERVIEW ,
+        cv.put(MovieEntry.COLUMN_OVERVIEW,
                 detailBundle.getString(MovieData.OVERVIEW_PARAM));
         cv.put(MovieEntry.COLUMN_GENRES,
                 detailBundle.getString(MovieData.GENRES_PARAM));
-        cv.put(MovieEntry.COLUMN_RELEASE_DATE ,
+        cv.put(MovieEntry.COLUMN_RELEASE_DATE,
                 detailBundle.getString(MovieData.RELEASE_DATE_PARAM));
         cv.put(MovieEntry.COLUMN_MOVIE_ID,
                 detailBundle.getInt(MovieData.ID_PARAM));
@@ -522,11 +535,81 @@ public class Utilities {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 return stream.toByteArray();
-            } catch (IOException ex){
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
         }
         return null;
+    }
+
+    public static void setupPager(ViewPager viewPager, TabLayout tabLayout, Context context) {
+        if (viewPager.getChildCount() > 0){
+            viewPager.getAdapter().notifyDataSetChanged();
+            return;
+        }
+
+        MovieDetailPagerAdapter pagerAdapter;
+        if (context instanceof MainActivity) {
+            pagerAdapter = new MovieDetailPagerAdapter(((MainActivity) context).getSupportFragmentManager());
+        } else if (context instanceof MovieDetailActivity) {
+            pagerAdapter = new MovieDetailPagerAdapter(((MovieDetailActivity) context).getSupportFragmentManager());
+        } else {
+            return;
+        }
+
+        pagerAdapter.addPage(new MovieOverviewFragment());
+        pagerAdapter.addPage(new MovieDetailsFragment());
+        pagerAdapter.addPage(new MovieTrailerFragment());
+        pagerAdapter.addPage(new MovieReviewFragment());
+
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+    }
+
+    public static void setupTabs(TabLayout tabLayout, ViewPager viewPager, final Context context) {
+        if (tabLayout.getTabCount() > 0) {
+            return;
+        }
+        Drawable iconOverview = context.getResources().getDrawable(R.drawable.overview);
+
+        iconOverview.setColorFilter(context.getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        Drawable iconDetail = context.getResources().getDrawable(R.drawable.detail);
+        iconDetail.setColorFilter(context.getResources().getColor(R.color.grey700), PorterDuff.Mode.SRC_IN);
+        Drawable iconTrailer = context.getResources().getDrawable(R.drawable.trailer);
+        iconTrailer.setColorFilter(context.getResources().getColor(R.color.grey700), PorterDuff.Mode.SRC_IN);
+        Drawable iconReview = context.getResources().getDrawable(R.drawable.review);
+        iconReview.setColorFilter(context.getResources().getColor(R.color.grey700), PorterDuff.Mode.SRC_IN);
+
+        String label1 = context.getString(R.string.tab_overview);
+        String label2 = context.getString(R.string.tab_details);
+        String label3 = context.getString(R.string.tab_trailers);
+        String label4 = context.getString(R.string.tab_reviews);
+
+        tabLayout.addTab(tabLayout.newTab().setIcon(iconOverview).setTag(label1));
+        tabLayout.addTab(tabLayout.newTab().setIcon(iconDetail).setTag(label2));
+        tabLayout.addTab(tabLayout.newTab().setIcon(iconTrailer).setTag(label3));
+        tabLayout.addTab(tabLayout.newTab().setIcon(iconReview).setTag(label4));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager) {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                super.onTabSelected(tab);
+                int tabIconColor = ContextCompat.getColor(context, R.color.colorAccent);
+                tab.getIcon().setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
+                if (context instanceof MainActivity) {
+                    ((MainActivity) context).setTitle(tab.getTag().toString());
+                } else if (context instanceof MovieDetailActivity) {
+                    ((MovieDetailActivity) context).setTitle(tab.getTag().toString());
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                super.onTabUnselected(tab);
+                int tabIconColor = ContextCompat.getColor(context, R.color.grey700);
+                tab.getIcon().setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
+            }
+        });
     }
 }

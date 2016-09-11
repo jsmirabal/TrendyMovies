@@ -4,27 +4,36 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import japps.trendymovies.R;
+import japps.trendymovies.data.MovieData;
 import japps.trendymovies.fragment.MainFragment;
 import japps.trendymovies.task.FetchMovieTask;
+import japps.trendymovies.utility.Utilities;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
 
+    private static final String OVERVIEW_FRAGMENT_TAG = "OFT";
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private MainFragment mMainFragment;
     private int mItemSelected;
+    private boolean mTableMode;
     private static final String MAIN_FRAGMENT_TAG = "main_fragment";
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -32,7 +41,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mMainFragment = (MainFragment) getFragmentManager().findFragmentById(R.id.main_fragment);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
@@ -44,16 +53,17 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        mItemSelected = R.id.nav_trending;
+        setupReceivers();
+        if (findViewById(R.id.movie_detail_container) != null) {
+            mTableMode = true;
+            if (savedInstanceState == null) {
 
-        if (savedInstanceState == null){
-            mMainFragment = new MainFragment();
-            mItemSelected = R.id.nav_trending;
-            getFragmentManager().beginTransaction()
-                    .add(R.id.main_coordinator_layout, mMainFragment, MAIN_FRAGMENT_TAG).commit();
+            }
         } else {
-            mMainFragment = (MainFragment) getFragmentManager().findFragmentByTag(MAIN_FRAGMENT_TAG);
+            mTableMode = false;
         }
-        setReceivers();
+
     }
 
     @Override
@@ -70,23 +80,44 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        if (mTableMode) {
+            getMenuInflater().inflate(R.menu.movie_detail_menu, menu);
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+        switch (id){
+            case R.id.movie_detail_action_fav:{
+                Bundle extras = getIntent().getExtras();
+                String movieId = Integer.toString(extras.getBundle(MovieData.DETAILS_PARAM)
+                        .getInt(MovieData.ID_PARAM));
+                try {
+                    if (Utilities.isFavourite(this, movieId)) {
+                        Utilities.removeFavourite(this, extras);
+                        item.setIcon(R.drawable.favourite_off);
+                        mMainFragment.fetchFavourites();
+                    } else {
+                        Utilities.addFavourite(this, extras);
+                        item.setIcon(R.drawable.favourite_on);
+                    }
+                } catch (SQLException ex){
+                    Log.d(LOG_TAG, ex.getMessage());
+                    ex.printStackTrace();
+                }
+                return true;
+            }// Case 1
+            case R.id.action_settings:{
+                return true;
+            }
+            default: {
+                return super.onOptionsItemSelected(item);
+            }// Case 2
+        }// Switch
+    }// Method
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -125,7 +156,8 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void setReceivers () {
+    private void setupReceivers() {
+        final Context contx = this;
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -135,10 +167,22 @@ public class MainActivity extends AppCompatActivity
                             mMainFragment.fetchFavourites();
                         }
                     }
+                    case MainFragment.LOAD_MOVIE_LIST_FINISHED:{
+                        ViewPager viewPager = (ViewPager) findViewById(R.id.pagerView);
+                        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+                        Utilities.setupTabs(tabLayout, viewPager, contx);
+                        Utilities.setupPager(viewPager, tabLayout, contx);
+                    }
                 }
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mBroadcastReceiver, new IntentFilter(MovieDetailActivity.FAVOURITE_REMOVED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mBroadcastReceiver, new IntentFilter(MainFragment.LOAD_MOVIE_LIST_FINISHED));
+    }
+
+    public boolean isTableMode(){
+        return mTableMode;
     }
 }

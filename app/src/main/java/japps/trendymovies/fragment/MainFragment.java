@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +31,7 @@ import japps.trendymovies.utility.Utilities;
  * Created by Julio on 21/1/2016.
  */
 public class MainFragment extends Fragment implements AdapterView.OnItemClickListener {
+    public static final String LOAD_MOVIE_LIST_FINISHED = "LMLF";
     private ImageAdapter mAdapter;
     private GridView mGrid;
     private Context mContext;
@@ -38,6 +40,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     private ArrayList<String> mMovieIdList;
     private Bundle mMovieListBundle;
     private FetchMovieTask task;
+    private MainActivity mActivity;
     private boolean mIsFavouriteViewActive;
     private final String LOG_TAG = MainFragment.class.getSimpleName();
     private final String MOVIE_LIST = "movie_list";
@@ -85,6 +88,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getActivity();
+        mActivity = (MainActivity) mContext;
         ActionBar actionBar = ((MainActivity) mContext).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setElevation(0);
@@ -110,6 +114,9 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 mMovieListBundle = ((MovieListData) mMovieHandler).getMovieDataBundle();
                 mAdapter.setItems(mMovieListBundle);
                 mGrid.setAdapter(mAdapter);
+                if (mActivity.isTableMode()){
+                    mGrid.performItemClick(mAdapter.getView(0,null,null),0,mAdapter.getItemId(0));
+                }
             }
         };
         task.execute(FetchMovieTask.FETCH_MOVIE_LIST, params, mContext);
@@ -120,25 +127,38 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         if (!mMovieListBundle.isEmpty()) {
             mAdapter.setItems(mMovieListBundle);
             mGrid.setAdapter(mAdapter);
+            if (mActivity.isTableMode()){
+                mGrid.performItemClick(mAdapter.getView(0,null,null),0,mAdapter.getItemId(0));
+            }
             mIsFavouriteViewActive = true;
             return;
         }
+        mGrid.setAdapter(new ImageAdapter(mContext, R.layout.list_item_poster, R.id.poster_view));
         Log.d(LOG_TAG, "No favourites rows were found.");
     }
 
     private void setIntentDataFromDb(String movieId) {
         Bundle data = Utilities.getFavouriteMovie(mContext, movieId);
-        if (!data.isEmpty()) {
+        Intent intent;
+        if (data.isEmpty()) {
+            return;
+        }
+        if (mActivity.isTableMode()) {
+            intent = mActivity.getIntent();
+        } else {
+            intent = new Intent(mContext, MovieDetailActivity.class);
+        }
 
-            Intent intent = new Intent(mContext, MovieDetailActivity.class);
+        intent.putExtra(MovieData.DETAILS_PARAM, data.getBundle(MovieData.DETAILS_PARAM));
+        intent.putExtra(MovieData.TRAILERS_PARAM, data.getBundle(MovieData.TRAILERS_PARAM));
+        intent.putExtra(MovieData.REVIEWS_PARAM, data.getBundle(MovieData.REVIEWS_PARAM));
+        intent.putExtra(MovieData.CAST_PARAM, data.getBundle(MovieData.CAST_PARAM));
+        intent.putExtra(MovieData.CREW_PARAM, data.getBundle(MovieData.CREW_PARAM));
 
-            intent.putExtra(MovieData.DETAILS_PARAM, data.getBundle(MovieData.DETAILS_PARAM));
-            intent.putExtra(MovieData.TRAILERS_PARAM, data.getBundle(MovieData.TRAILERS_PARAM));
-            intent.putExtra(MovieData.REVIEWS_PARAM, data.getBundle(MovieData.REVIEWS_PARAM));
-            intent.putExtra(MovieData.CAST_PARAM, data.getBundle(MovieData.CAST_PARAM));
-            intent.putExtra(MovieData.CREW_PARAM, data.getBundle(MovieData.CREW_PARAM));
-
+        if (!mActivity.isTableMode()){
             mContext.startActivity(intent);
+        } else {
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOAD_MOVIE_LIST_FINISHED));
         }
     }
 
@@ -157,7 +177,12 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                     return;
                 }
                 MovieData movieData = (MovieData) data;
-                Intent intent = new Intent(mContext, MovieDetailActivity.class);
+                Intent intent;
+                if (mActivity.isTableMode()) {
+                    intent = mActivity.getIntent();
+                } else {
+                    intent = new Intent(mContext, MovieDetailActivity.class);
+                }
 
                 intent.putExtra(MovieData.DETAILS_PARAM, movieData.getDetailBundle());
                 intent.putExtra(MovieData.TRAILERS_PARAM, movieData.getTrailerBundle());
@@ -165,7 +190,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 intent.putExtra(MovieData.CAST_PARAM, movieData.getCastBundle());
                 intent.putExtra(MovieData.CREW_PARAM, movieData.getCrewBundle());
 
-                mContext.startActivity(intent);
+                if (!mActivity.isTableMode()){
+                    mContext.startActivity(intent);
+                } else {
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOAD_MOVIE_LIST_FINISHED));
+                }
             }
 
         };

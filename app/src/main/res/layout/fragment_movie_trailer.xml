@@ -14,6 +14,5 @@
         android:layout_centerVertical="true"
         android:divider="@android:color/transparent"
         android:dividerHeight="5dp"
-        android:minHeight="?android:attr/listPreferredItemHeight"
-        android:padding="5dp" />
+        android:minHeight="?android:attr/listPreferredItemHeight"/>
 </RelativeLayout>

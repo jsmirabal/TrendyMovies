@@ -7,11 +7,14 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import japps.trendymovies.R;
+import japps.trendymovies.activity.MainActivity;
 import japps.trendymovies.activity.MovieDetailActivity;
 import japps.trendymovies.adapter.PersonRecyclerAdapter;
 import japps.trendymovies.data.MovieData;
@@ -23,7 +26,15 @@ import japps.trendymovies.utility.Utilities;
 public class MovieDetailsFragment extends Fragment {
 
     private Context mContext;
+    private Bundle mExtras;
     private final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        mContext = getActivity();
+    }
 
     @Nullable
     @Override
@@ -31,10 +42,14 @@ public class MovieDetailsFragment extends Fragment {
         if (container == null) {
             return null;
         }
-        mContext = getActivity();
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
-        Bundle extras = ((MovieDetailActivity) mContext).getIntent().getExtras();
-        Bundle detailBundle = extras.getBundle(MovieData.DETAILS_PARAM);
+
+        if (mContext instanceof MainActivity) {
+            mExtras = ((MainActivity) mContext).getIntent().getExtras();
+        } else {
+            mExtras = ((MovieDetailActivity) mContext).getIntent().getExtras();
+        }
+        Bundle detailBundle = mExtras.getBundle(MovieData.DETAILS_PARAM);
         ViewHolder holder = new ViewHolder(rootView);
         holder.genreValueView.setText(detailBundle.getString(MovieData.GENRES_PARAM));
         holder.releaseDateValueView.setText(Utilities.formatDate(detailBundle.getString(MovieData.RELEASE_DATE_PARAM)));
@@ -51,8 +66,8 @@ public class MovieDetailsFragment extends Fragment {
         RecyclerView crewRecyclerView = (RecyclerView) rootView.findViewById(R.id.crew_recycler_view);
         RecyclerView.LayoutManager castManager = new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false);
         RecyclerView.LayoutManager crewManager = new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false);
-        Bundle castBundle = extras.getBundle(MovieData.CAST_PARAM);
-        Bundle crewBundle = extras.getBundle(MovieData.CREW_PARAM);
+        Bundle castBundle = mExtras.getBundle(MovieData.CAST_PARAM);
+        Bundle crewBundle = mExtras.getBundle(MovieData.CREW_PARAM);
         PersonRecyclerAdapter castAdapter = new PersonRecyclerAdapter(castBundle);
         PersonRecyclerAdapter crewAdapter = new PersonRecyclerAdapter(crewBundle);
         castRecyclerView.setLayoutManager(castManager);
@@ -60,6 +75,17 @@ public class MovieDetailsFragment extends Fragment {
         crewRecyclerView.setLayoutManager(crewManager);
         crewRecyclerView.setAdapter(crewAdapter);
         return rootView;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.movie_detail_action_fav);
+        Bundle detailBundle = mExtras.getBundle(MovieData.DETAILS_PARAM);
+        String movieId = Integer.toString(detailBundle.getInt(MovieData.ID_PARAM));
+        if (Utilities.isFavourite(mContext, movieId)) {
+            menuItem.setIcon(R.drawable.favourite_on);
+        }
+        super.onPrepareOptionsMenu(menu);
     }
 
     public static class ViewHolder{

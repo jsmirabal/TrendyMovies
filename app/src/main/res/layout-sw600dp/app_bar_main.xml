@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Sub container -->
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_coordinator_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activity.MainActivity">
+
+    <!-- App bar container -->
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <!-- Toolbar -->
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/main_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:divider="?android:attr/dividerHorizontal"
+        android:orientation="horizontal"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context=".activity.MainActivity">
+
+        <!--
+        This layout is a two-pane layout for the Items master/detail flow.
+        -->
+
+        <fragment
+            android:id="@+id/main_fragment"
+            android:name="japps.trendymovies.fragment.MainFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="@integer/tablet_weight_1"
+            tools:context="japps.trendymovies.fragment.MainFragment"
+            tools:layout="@android:layout/list_content" />
+
+        <LinearLayout
+            android:id="@+id/movie_detail_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="@integer/tablet_weight_2"
+            android:orientation="vertical"
+            tools:context=".activity.MainActivity">
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                app:tabBackground="@color/colorPrimary"
+                app:tabGravity="fill"
+                app:tabMode="fixed"
+                app:tabTextAppearance="@style/MyCustomTabTextAppearance" />
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pagerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

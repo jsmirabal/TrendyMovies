@@ -1,85 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|right"
-        android:background="@color/colorPrimary"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:padding="5dp">
 
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                style="@android:style/Widget.Material.ProgressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="2dp"
-                tools:targetApi="lollipop"
-                android:layout_centerInParent="true"
-                android:visibility="gone"
-                />
-
-            <ImageView
-                android:id="@+id/movie_detail_poster_image"
-                android:layout_width="130dp"
-                android:layout_height="180dp" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:padding="5dp">
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:background="@color/colorPrimary"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/movie_detail_title"
+            <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:gravity="center_horizontal"
-                android:padding="5dp"
-                android:textColor="@color/white"
-                android:textIsSelectable="true"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp">
 
-            <TextView
-                android:id="@+id/movie_detail_year_length_rate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/movie_detail_title"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="26dp"
-                android:gravity="center_horizontal"
-                android:padding="5dp"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
+                <ProgressBar
+                    android:id="@+id/progress_bar"
+                    style="@android:style/Widget.Material.ProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:elevation="2dp"
 
-        </RelativeLayout>
+                    android:foreground="@color/red300"
+                    android:visibility="gone"
+                    tools:targetApi="lollipop" />
+
+                <ImageView
+                    android:id="@+id/movie_detail_poster_image"
+                    android:layout_width="130dp"
+                    android:layout_height="180dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp">
+
+                <TextView
+                    android:id="@+id/movie_detail_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center_horizontal"
+                    android:padding="5dp"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/movie_detail_year_length_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/movie_detail_title"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="26dp"
+                    android:gravity="center_horizontal"
+                    android:padding="5dp"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/movie_detail_synopsis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/movie_detail_synopsis"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="20dp"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:scrollbars="vertical"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-</LinearLayout>
+</ScrollView>
 

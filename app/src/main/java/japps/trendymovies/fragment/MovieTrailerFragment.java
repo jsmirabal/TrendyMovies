@@ -10,6 +10,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -26,8 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import japps.trendymovies.R;
+import japps.trendymovies.activity.MainActivity;
 import japps.trendymovies.activity.MovieDetailActivity;
 import japps.trendymovies.data.MovieData;
+import japps.trendymovies.utility.Utilities;
 
 /**
  * Created by Julio on 5/7/2016.
@@ -37,16 +41,25 @@ public class MovieTrailerFragment extends Fragment {
     private ListView mListView;
     private TrailerListAdapter mAdapter;
     private final String LOG_TAG = MovieTrailerFragment.class.getSimpleName();
-
+    private Bundle mExtras;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        mContext = getActivity();
+    }
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (container == null) {
             return null;
         }
-        mContext = getActivity();
-        Intent intent = ((MovieDetailActivity) mContext).getIntent();
-        Bundle trailerBundle = intent.getExtras().getBundle(MovieData.TRAILERS_PARAM);
+        if (mContext instanceof MainActivity) {
+            mExtras = ((MainActivity) mContext).getIntent().getExtras();
+        } else {
+            mExtras = ((MovieDetailActivity) mContext).getIntent().getExtras();
+        }
+        Bundle trailerBundle = mExtras.getBundle(MovieData.TRAILERS_PARAM);
 
         int trailersCount = trailerBundle != null ? trailerBundle.getInt(MovieData.TRAILERS_COUNT) : 0;
         if (trailersCount == 0) {
@@ -59,6 +72,17 @@ public class MovieTrailerFragment extends Fragment {
         mListView.setAdapter(mAdapter);
 
         return rootView;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.movie_detail_action_fav);
+        Bundle detailBundle = mExtras.getBundle(MovieData.DETAILS_PARAM);
+        String movieId = Integer.toString(detailBundle.getInt(MovieData.ID_PARAM));
+        if (Utilities.isFavourite(mContext, movieId)) {
+            menuItem.setIcon(R.drawable.favourite_on);
+        }
+        super.onPrepareOptionsMenu(menu);
     }
 
     public static class TrailerListAdapter extends BaseAdapter {
