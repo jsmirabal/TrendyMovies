@@ -6,5 +6,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="simplePadding">5dp</dimen>
+    <dimen name="simple_padding">5dp</dimen>
+    <dimen name="card_outer_margins">8dp</dimen>
+    <dimen name="item_poster_height">230dp</dimen>
+    <dimen name="item_poster_width">194dp</dimen>
 </resources>

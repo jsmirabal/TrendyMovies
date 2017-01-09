@@ -267,9 +267,9 @@
     <color name="yellowA700">#FFD600</color>
 
     <!-- Amber__________________________________________________________________________________ -->
-    <color name="amber50"> #FFF8E1</color>
+    <color name="amber50">#fff8e1</color>
     <color name="amber100">#FFECB3</color>
-    <color name="amber200">#FFE082</color>
+    <color name="amber200">#ffe082</color>
     <color name="amber300">#FFD54F</color>
     <color name="amber400">#FFCA28</color>
     <color name="amber500">#FFC107</color>

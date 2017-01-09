@@ -3,19 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.MainFragment"
-    android:background="@color/colorPrimary">
+    android:background="@color/grey200"
+    android:padding="4dp"
+    tools:context=".fragment.MainFragment">
 
-    <GridView
-        android:id="@+id/gridView"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/poster_list_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:drawSelectorOnTop="true"
-        android:gravity="center"
-        android:horizontalSpacing="2dp"
-        android:numColumns="2"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="2dp"
-        android:layout_centerHorizontal="true" />
+        android:layout_height="match_parent" >
+
+    </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

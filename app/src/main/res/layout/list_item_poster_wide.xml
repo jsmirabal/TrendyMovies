@@ -2,7 +2,7 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp">
 
@@ -29,12 +29,11 @@
 
             <ImageView
                 android:id="@+id/poster_view"
-                android:layout_width="@dimen/item_poster_width"
-                android:layout_height="@dimen/item_poster_height"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
                 android:adjustViewBounds="true"
-                android:scaleType="fitXY"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                />
+                android:scaleType="fitXY" />
         </RelativeLayout>
 
         <LinearLayout
@@ -77,7 +76,7 @@
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:src="@drawable/ic_icons_favorite" />
+                    android:src="@drawable/abc_ic_star_black_16dp" />
 
                 <TextView
                     android:id="@+id/rating_poster_item"
@@ -99,13 +98,21 @@
                 android:textAppearance="?android:textAppearanceSmall" />
 
             <ImageButton
-                android:id="@+id/menu_button_poster_item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="0"
-                android:background="@null"
-                android:src="@drawable/ic_more_vert_black_24dp" />
+                android:id="@+id/wide_fav_button"
+                style="@style/Base.Widget.AppCompat.ActionButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_heart" />
+
+            <ImageButton
+                android:id="@+id/wide_share_button"
+                style="@style/Base.Widget.AppCompat.ActionButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_share_black_24dp" />
+
         </LinearLayout>
 
     </LinearLayout>

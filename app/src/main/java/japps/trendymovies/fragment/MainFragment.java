@@ -1,18 +1,31 @@
 package japps.trendymovies.fragment;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -20,7 +33,7 @@ import java.util.Locale;
 import japps.trendymovies.R;
 import japps.trendymovies.activity.MainActivity;
 import japps.trendymovies.activity.MovieDetailActivity;
-import japps.trendymovies.adapter.ImageAdapter;
+import japps.trendymovies.adapter.PosterListRecyclerAdapter;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
 import japps.trendymovies.data.MovieListData;
@@ -32,8 +45,10 @@ import japps.trendymovies.utility.Utilities;
  */
 public class MainFragment extends Fragment implements AdapterView.OnItemClickListener {
     public static final String LOAD_MOVIE_LIST_FINISHED = "LMLF";
-    private ImageAdapter mAdapter;
+    //    private ImageAdapter mAdapter;
+    private PosterListRecyclerAdapter mAdapter;
     private GridView mGrid;
+    private RecyclerView mRecyclerGrid;
     private Context mContext;
     private MovieHandler mMovieHandler;
     private ArrayList<String> mMoviePosterList;
@@ -42,6 +57,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     private FetchMovieTask task;
     private MainActivity mActivity;
     private boolean mIsFavouriteViewActive;
+    private int mCurrentSort;
     private final String LOG_TAG = MainFragment.class.getSimpleName();
     private final String MOVIE_LIST = "movie_list";
     public static final String MOVIE_DATA = "movie_data";
@@ -52,9 +68,28 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
 
         View root = inflater.inflate(fragmentMainRes, container, false);
 
-        mGrid = (GridView) root.findViewById(R.id.gridView);
-        mGrid.setOnItemClickListener(this);
-
+        mRecyclerGrid = (RecyclerView) root.findViewById(R.id.poster_list_recycler_view);
+        GridLayoutManager gridLayoutManager;
+        if (mActivity.getOrientation() == Configuration.ORIENTATION_PORTRAIT) {
+            gridLayoutManager = new GridLayoutManager(mContext, 2);
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    return mAdapter.getItemViewType(position) ==
+                            PosterListRecyclerAdapter.TYPE_POSTER_WIDE ? 2 : 1;
+                }
+            });
+        } else {
+            gridLayoutManager = new GridLayoutManager(mContext, 4);
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    return mAdapter.getItemViewType(position) ==
+                            PosterListRecyclerAdapter.TYPE_POSTER_WIDE ? 2 : 1;
+                }
+            });
+        }
+        mRecyclerGrid.setLayoutManager(gridLayoutManager);
         Log.d(LOG_TAG, "LOCALE: " + Locale.getDefault());
 
         return root;
@@ -64,13 +99,16 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mAdapter = new ImageAdapter(mContext, R.layout.list_item_poster, R.id.poster_view);
+//        mAdapter = new ImageAdapter(mContext, R.layout.list_item_poster, R.id.poster_view);
+
         if (savedInstanceState != null) {
             mMovieListBundle = savedInstanceState.getParcelable(MOVIE_LIST);
-            mAdapter.setItems(mMovieListBundle);
-            mGrid.setAdapter(mAdapter);
+//            mAdapter.setItems(mMovieListBundle);
+            mAdapter = new PosterListRecyclerAdapter(mMovieListBundle, this);
+//            mGrid.setAdapter(mAdapter);
+            mRecyclerGrid.setAdapter(mAdapter);
         } else {
-            fetchMovieList(FetchMovieTask.MOST_POPULAR);
+            fetchMovieList(FetchMovieTask.MOST_POPULAR, 1);
         }
     }
 
@@ -95,10 +133,13 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         }
     }
 
-    public void fetchMovieList(int sortBy) {
+    public void fetchMovieList(int sortBy, int pageNum) {
         Bundle params = new Bundle();
         params.putInt(FetchMovieTask.SORT_KEY, sortBy);
+        params.putInt(FetchMovieTask.PAGE_KEY, pageNum);
         mIsFavouriteViewActive = false;
+        mCurrentSort = sortBy;
+        final MainFragment mainFragment = this;
         task = new FetchMovieTask() {
             @Override
             protected void onPostExecute(MovieHandler data) {
@@ -112,10 +153,12 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 }
                 mMovieHandler = data;
                 mMovieListBundle = ((MovieListData) mMovieHandler).getMovieDataBundle();
-                mAdapter.setItems(mMovieListBundle);
-                mGrid.setAdapter(mAdapter);
-                if (mActivity.isTableMode()){
-                    mGrid.performItemClick(mAdapter.getView(0,null,null),0,mAdapter.getItemId(0));
+//                mAdapter.setItems(mMovieListBundle);
+                mAdapter = new PosterListRecyclerAdapter(mMovieListBundle, mainFragment);
+                mRecyclerGrid.setAdapter(mAdapter);
+//                mGrid.setAdapter(mAdapter);
+                if (mActivity.isTabletMode()) {
+//                    mGrid.performItemClick(mAdapter.getView(0,null,null),0,mAdapter.getItemId(0));
                 }
             }
         };
@@ -125,25 +168,121 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     public void fetchFavourites() {
         mMovieListBundle = Utilities.getFavouritesDataList(mContext);
         if (!mMovieListBundle.isEmpty()) {
-            mAdapter.setItems(mMovieListBundle);
-            mGrid.setAdapter(mAdapter);
-            if (mActivity.isTableMode()){
-                mGrid.performItemClick(mAdapter.getView(0,null,null),0,mAdapter.getItemId(0));
+//            mAdapter.setItems(mMovieListBundle);
+//            mGrid.setAdapter(mAdapter);
+            mAdapter = new PosterListRecyclerAdapter(mMovieListBundle, this);
+            mRecyclerGrid.setAdapter(mAdapter);
+            if (mActivity.isTabletMode()) {
+//                mGrid.performItemClick(mAdapter.getView(0,null,null),0,mAdapter.getItemId(0));
             }
             mIsFavouriteViewActive = true;
             return;
         }
-        mGrid.setAdapter(new ImageAdapter(mContext, R.layout.list_item_poster, R.id.poster_view));
+//        mGrid.setAdapter(new ImageAdapter(mContext, R.layout.list_item_poster, R.id.poster_view));
         Log.d(LOG_TAG, "No favourites rows were found.");
     }
 
-    private void setIntentDataFromDb(String movieId) {
+    public void showPageSwitcher(Context context) {
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.page_switcher_popup);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setCancelable(true);
+
+        final int currentPage = mMovieListBundle.getInt(MovieData.CURRENT_PAGE);
+        final int totalPages = mMovieListBundle.getInt(MovieData.TOTAL_PAGES);
+        final TextView pageCountView = (TextView) dialog.findViewById(R.id.page_count);
+        pageCountView.setText(currentPage + " of " + totalPages);
+        ImageButton previous = (ImageButton) dialog.findViewById(R.id.previous_page_button);
+        ImageButton next = (ImageButton) dialog.findViewById(R.id.next_page_button);
+        final ImageButton clear = (ImageButton) dialog.findViewById(R.id.clear_button);
+        final EditText editText = (EditText) dialog.findViewById(R.id.page_editText);
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
+
+        previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(mContext, "Previous Page", Toast.LENGTH_SHORT).show();
+                int currentPage = mMovieListBundle.getInt(MovieData.CURRENT_PAGE);
+                if (currentPage > 1) {
+                    fetchMovieList(mCurrentSort, currentPage - 1);
+                    pageCountView.setText(currentPage - 1 + " of " + totalPages);
+                }
+            }
+        });
+
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(mContext, "Next Page", Toast.LENGTH_SHORT).show();
+                int currentPage = mMovieListBundle.getInt(MovieData.CURRENT_PAGE);
+                if (currentPage < totalPages) {
+                    fetchMovieList(mCurrentSort, currentPage + 1);
+                    pageCountView.setText(currentPage + 1 + " of " + totalPages);
+                }
+            }
+        });
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!charSequence.toString().isEmpty()) {
+                    clear.setVisibility(View.VISIBLE);
+                } else {
+                    clear.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                String pageStr = textView.getText().toString();
+                int pageNum = !pageStr.isEmpty() ? Integer.parseInt(pageStr) : 0;
+                if (actionId == EditorInfo.IME_ACTION_GO && pageNum > 0 && pageNum != currentPage
+                        && pageNum <= totalPages) {
+                    fetchMovieList(mCurrentSort, pageNum);
+                    pageCountView.setText(pageNum + " of " + totalPages);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.getText().clear();
+            }
+        });
+
+//        edit.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(mContext, "Go to Page", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+        dialog.show();
+    }
+
+    public void setIntentDataFromDb(String movieId) {
         Bundle data = Utilities.getFavouriteMovie(mContext, movieId);
         Intent intent;
         if (data.isEmpty()) {
             return;
         }
-        if (mActivity.isTableMode()) {
+        if (mActivity.isTabletMode()) {
             intent = mActivity.getIntent();
         } else {
             intent = new Intent(mContext, MovieDetailActivity.class);
@@ -155,14 +294,14 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         intent.putExtra(MovieData.CAST_PARAM, data.getBundle(MovieData.CAST_PARAM));
         intent.putExtra(MovieData.CREW_PARAM, data.getBundle(MovieData.CREW_PARAM));
 
-        if (!mActivity.isTableMode()){
+        if (!mActivity.isTabletMode()) {
             mContext.startActivity(intent);
         } else {
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOAD_MOVIE_LIST_FINISHED));
         }
     }
 
-    private void setIntentDataFromTask(String movieId) {
+    public void setIntentDataFromTask(String movieId) {
         Bundle params = new Bundle();
         params.putString(FetchMovieTask.MOVIE_ID_KEY, movieId);
         task = new FetchMovieTask() {
@@ -178,7 +317,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 }
                 MovieData movieData = (MovieData) data;
                 Intent intent;
-                if (mActivity.isTableMode()) {
+                if (mActivity.isTabletMode()) {
                     intent = mActivity.getIntent();
                 } else {
                     intent = new Intent(mContext, MovieDetailActivity.class);
@@ -190,7 +329,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 intent.putExtra(MovieData.CAST_PARAM, movieData.getCastBundle());
                 intent.putExtra(MovieData.CREW_PARAM, movieData.getCrewBundle());
 
-                if (!mActivity.isTableMode()){
+                if (!mActivity.isTabletMode()) {
                     mContext.startActivity(intent);
                 } else {
                     LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOAD_MOVIE_LIST_FINISHED));

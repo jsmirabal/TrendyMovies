@@ -36,6 +36,7 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
     public static final int FETCH_MOVIE_LIST = 2;
     public static final String MOVIE_ID_KEY = "movie_id";
     public static final String SORT_KEY = "sort";
+    public static final String PAGE_KEY = "page";
     public static final int MOST_POPULAR = 10;
     public static final int TOP_RATED = 11;
     public static final int UPCOMING = 12;
@@ -52,8 +53,10 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
 
         Integer fetchType = (Integer) params[0];
         mContext = (Context) params[2];
+        int pageNum = ((Bundle)params[1]).getInt(PAGE_KEY);
         final String SORT_PARAM = "sort_by";
         final String LANG_PARAM = "language";
+        final String PAGE_PARAM = "page";
         final String ATR_PARAM = "append_to_response";
         final String API_KEY_PARAM = "api_key";
         String requestPath;
@@ -83,7 +86,8 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
             case FETCH_MOVIE_LIST:{
                 int sortBy = ((Bundle)params[1]).getInt(SORT_KEY);
                 Uri.Builder requestUri = Uri.parse(BASE_URI_MOVIE_LIST).buildUpon()
-                        .appendQueryParameter(API_KEY_PARAM,API_KEY);
+                        .appendQueryParameter(API_KEY_PARAM,API_KEY)
+                        .appendQueryParameter(PAGE_PARAM, Integer.toString(pageNum));
                 switch (sortBy){
                     case MOST_POPULAR:{
                         requestPath = requestUri.appendQueryParameter(SORT_PARAM, "popularity.desc")

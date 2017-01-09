@@ -62,6 +62,8 @@ public class MovieData implements MovieHandler {
     public static final String PEOPLE_TYPE = "type";
     public static final String PROFILE_PATH_PARAM = "profile_path";
     public static final String MOVIE_LIST_COUNT = "movie_list_count";
+    public static final String TOTAL_PAGES = "movie_total_count";
+    public static final String CURRENT_PAGE = "current_page";
     public static final String POSTER_BLOB_PARAM = "poster_blob";
 
     private final String RESULTS_PARAM = "results";

@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private MainFragment mMainFragment;
     private int mItemSelected;
-    private boolean mTableMode;
+    private boolean mTabletMode;
     private static final String MAIN_FRAGMENT_TAG = "main_fragment";
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -56,12 +56,12 @@ public class MainActivity extends AppCompatActivity
         mItemSelected = R.id.nav_trending;
         setupReceivers();
         if (findViewById(R.id.movie_detail_container) != null) {
-            mTableMode = true;
+            mTabletMode = true;
             if (savedInstanceState == null) {
 
             }
         } else {
-            mTableMode = false;
+            mTabletMode = false;
         }
 
     }
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        if (mTableMode) {
+        if (mTabletMode) {
             getMenuInflater().inflate(R.menu.movie_detail_menu, menu);
         }
         return true;
@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id){
+            // Only on tablet mode
             case R.id.movie_detail_action_fav:{
                 Bundle extras = getIntent().getExtras();
                 String movieId = Integer.toString(extras.getBundle(MovieData.DETAILS_PARAM)
@@ -109,13 +110,21 @@ public class MainActivity extends AppCompatActivity
                     ex.printStackTrace();
                 }
                 return true;
+            }// Tablet Case 1
+
+            case R.id.action_search:{
+                return true;
             }// Case 1
+            case R.id.action_pages:{
+                mMainFragment.showPageSwitcher(this);
+                return true;
+            }// Case 2
             case R.id.action_settings:{
                 return true;
-            }
+            }// Case 3
             default: {
                 return super.onOptionsItemSelected(item);
-            }// Case 2
+            }// Default
         }// Switch
     }// Method
 
@@ -127,23 +136,23 @@ public class MainActivity extends AppCompatActivity
             mItemSelected = id;
             switch (id){
                 case R.id.nav_trending:{
-                    mMainFragment.fetchMovieList(FetchMovieTask.MOST_POPULAR);
+                    mMainFragment.fetchMovieList(FetchMovieTask.MOST_POPULAR, 1);
                     break;
                 }
                 case R.id.nav_top_rated:{
-                    mMainFragment.fetchMovieList(FetchMovieTask.TOP_RATED);
+                    mMainFragment.fetchMovieList(FetchMovieTask.TOP_RATED, 1);
                     break;
                 }
                 case R.id.nav_upcoming:{
-                    mMainFragment.fetchMovieList(FetchMovieTask.UPCOMING);
+                    mMainFragment.fetchMovieList(FetchMovieTask.UPCOMING, 1);
                     break;
                 }
                 case R.id.nav_now_playing:{
-                    mMainFragment.fetchMovieList(FetchMovieTask.NOW_PLAYING);
+                    mMainFragment.fetchMovieList(FetchMovieTask.NOW_PLAYING, 1);
                     break;
                 }
                 case R.id.nav_revenue:{
-                    mMainFragment.fetchMovieList(FetchMovieTask.REVENUE);
+                    mMainFragment.fetchMovieList(FetchMovieTask.REVENUE, 1);
                     break;
                 }
                 case R.id.nav_favourites:{
@@ -182,7 +191,9 @@ public class MainActivity extends AppCompatActivity
                 mBroadcastReceiver, new IntentFilter(MainFragment.LOAD_MOVIE_LIST_FINISHED));
     }
 
-    public boolean isTableMode(){
-        return mTableMode;
+    public boolean isTabletMode(){
+        return mTabletMode;
     }
+
+    public int getOrientation(){return this.getResources().getConfiguration().orientation;}
 }

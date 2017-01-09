@@ -88,7 +88,11 @@ public class Utilities {
     }
 
     public static String formatPopularity(double popularity) {
-        return String.format(Locale.getDefault(), "%.1f", popularity);
+        return String.format(Locale.getDefault(), "%.0f", popularity);
+    }
+
+    public static String formatRating(double rating) {
+        return String.format(Locale.getDefault(), "%.1f", rating);
     }
 
     public static String formatRuntime(int runtime) {
@@ -468,11 +472,19 @@ public class Utilities {
         ArrayList<String> movieIdList = new ArrayList<>();
         ArrayList<String> posterList = new ArrayList<>();
         ArrayList<byte[]> posterBlobList = new ArrayList<>();
+        ArrayList<Double> popularityList = new ArrayList<>();
+        ArrayList<Double> ratingList = new ArrayList<>();
+        ArrayList<String> releaseDateList = new ArrayList<>();
         ContentResolver cr = context.getContentResolver();
         Cursor cursor = cr.query(
                 MovieEntry.CONTENT_URI,
-                new String[]{MovieEntry.COLUMN_MOVIE_ID, MovieEntry.COLUMN_POSTER_PATH,
-                        MovieEntry.COLUMN_POSTER_BLOB}, null, null, null);
+                new String[]{MovieEntry.COLUMN_MOVIE_ID,
+                        MovieEntry.COLUMN_POSTER_PATH,
+                        MovieEntry.COLUMN_POSTER_BLOB,
+                        MovieEntry.COLUMN_POPULARITY,
+                        MovieEntry.COLUMN_VOTE_AVERAGE,
+                        MovieEntry.COLUMN_RELEASE_DATE
+                }, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             for (int j = 0; j < cursor.getCount(); j++, cursor.moveToNext()) {
                 movieIdList.add(cursor.getString(
@@ -481,10 +493,19 @@ public class Utilities {
                         cursor.getColumnIndex(MovieEntry.COLUMN_POSTER_PATH)));
                 posterBlobList.add(cursor.getBlob(
                         cursor.getColumnIndex(MovieEntry.COLUMN_POSTER_BLOB)));
+                popularityList.add(cursor.getDouble(
+                        cursor.getColumnIndex(MovieEntry.COLUMN_POPULARITY)));
+                ratingList.add(cursor.getDouble(
+                        cursor.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE)));
+                releaseDateList.add(cursor.getString(
+                        cursor.getColumnIndex(MovieEntry.COLUMN_RELEASE_DATE)));
             }
             values.putStringArrayList(MovieData.ID_PARAM, movieIdList);
             values.putStringArrayList(MovieData.POSTER_PATH_PARAM, posterList);
             values.putSerializable(MovieData.POSTER_BLOB_PARAM, posterBlobList);
+            values.putStringArrayList(MovieData.RELEASE_DATE_PARAM, releaseDateList);
+            values.putSerializable(MovieData.POPULARITY_PARAM, popularityList);
+            values.putSerializable(MovieData.RATE_PARAM, ratingList);
             values.putInt(MovieData.MOVIE_LIST_COUNT, cursor.getCount());
             cursor.close();
         }
