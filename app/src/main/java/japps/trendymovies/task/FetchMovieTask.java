@@ -16,7 +16,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.Callable;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import japps.trendymovies.BuildConfig;
 import japps.trendymovies.data.MovieData;
 import japps.trendymovies.data.MovieHandler;
@@ -46,7 +49,20 @@ public class FetchMovieTask extends AsyncTask<Object, Void, MovieHandler> {
     private Context mContext;
 
     protected MovieHandler doInBackground(Object... params ) {
+        return getMovieList(params);
+    }
 
+    public Observable<MovieHandler> getMovieListObservable(final Object... params){
+        return Observable.defer(new Callable<ObservableSource<? extends MovieHandler>>() {
+            @Override
+            public ObservableSource<? extends MovieHandler> call() throws Exception {
+                return Observable.just(getMovieList(params));
+            }
+        });
+    }
+
+    @Nullable
+    private MovieHandler getMovieList(Object[] params) {
         if (!(params[0] instanceof Integer)){return null;}
         if (!(params[1] instanceof Bundle)){return null;}
         if (!(params[2] instanceof Context)){return null;}

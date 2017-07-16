@@ -30,6 +30,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import japps.trendymovies.R;
 import japps.trendymovies.activity.MainActivity;
 import japps.trendymovies.activity.MovieDetailActivity;
@@ -140,36 +145,44 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         mIsFavouriteViewActive = false;
         mCurrentSort = sortBy;
         final MainFragment mainFragment = this;
-        task = new FetchMovieTask() {
-            @Override
-            protected void onPostExecute(MovieHandler data) {
-                super.onPostExecute(data);
-                if (data == null) {
-//                    Toast.makeText(mContext, "Unable to fetch movie data. Try again later.",
-//                            Toast.LENGTH_LONG).show();
-                    Snackbar.make(getView(), "Unable to fetch movie data. Try again later.",
-                            Snackbar.LENGTH_LONG).show();
-                    return;
-                }
-                mMovieHandler = data;
-                mMovieListBundle = ((MovieListData) mMovieHandler).getMovieDataBundle();
+        task = new FetchMovieTask();
+        task.getMovieListObservable(FetchMovieTask.FETCH_MOVIE_LIST, params, mContext)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<MovieHandler>() {
+                    @Override
+                    public void accept(@NonNull MovieHandler movieHandler) throws Exception {
+                        if (movieHandler == null) {
+                            Snackbar.make(getView(), "Unable to fetch movie data. Try again later.",
+                                    Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                        mMovieHandler = movieHandler;
+                        mMovieListBundle = ((MovieListData) mMovieHandler).getMovieDataBundle();
 //                mAdapter.setItems(mMovieListBundle);
-                mAdapter = new PosterListRecyclerAdapter(mMovieListBundle, mainFragment);
-                mRecyclerGrid.setAdapter(mAdapter);
+                        mAdapter = new PosterListRecyclerAdapter(mMovieListBundle, mainFragment);
+                        mRecyclerGrid.setAdapter(mAdapter);
 //                mGrid.setAdapter(mAdapter);
-                if (mActivity.isTabletMode()) {
+                        if (mActivity.isTabletMode()) {
 //                    mGrid.performItemClick(mAdapter.getView(0,null,null),0,mAdapter.getItemId(0));
-                }
-            }
-        };
-        task.execute(FetchMovieTask.FETCH_MOVIE_LIST, params, mContext);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        Log.e(LOG_TAG, "onError RX: " + throwable.getMessage());
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        Log.e(LOG_TAG, "onComplete RX");
+                    }
+                });
     }
 
     public void fetchFavourites() {
         mMovieListBundle = Utilities.getFavouritesDataList(mContext);
         if (!mMovieListBundle.isEmpty()) {
-//            mAdapter.setItems(mMovieListBundle);
-//            mGrid.setAdapter(mAdapter);
             mAdapter = new PosterListRecyclerAdapter(mMovieListBundle, this);
             mRecyclerGrid.setAdapter(mAdapter);
             if (mActivity.isTabletMode()) {
@@ -265,14 +278,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                 editText.getText().clear();
             }
         });
-
-//        edit.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(mContext, "Go to Page", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
         dialog.show();
     }
 
@@ -304,40 +309,51 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     public void setIntentDataFromTask(String movieId) {
         Bundle params = new Bundle();
         params.putString(FetchMovieTask.MOVIE_ID_KEY, movieId);
-        task = new FetchMovieTask() {
-            @Override
-            protected void onPostExecute(MovieHandler data) {
-                super.onPostExecute(data);
-                if (data == null) {
+        task = new FetchMovieTask();
+        task.getMovieListObservable(FetchMovieTask.FETCH_MOVIE, params, mContext)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<MovieHandler>() {
+                    @Override
+                    public void accept(@NonNull MovieHandler movieHandler) throws Exception {
+                        if (movieHandler == null) {
 //                    Toast.makeText(mContext, "Unable to fetch movie data. Try again later.",
 //                            Toast.LENGTH_LONG).show();
-                    Snackbar.make(getView(), "Unable to fetch movie data. Try again later.",
-                            Snackbar.LENGTH_LONG).show();
-                    return;
-                }
-                MovieData movieData = (MovieData) data;
-                Intent intent;
-                if (mActivity.isTabletMode()) {
-                    intent = mActivity.getIntent();
-                } else {
-                    intent = new Intent(mContext, MovieDetailActivity.class);
-                }
+                            Snackbar.make(getView(), "Unable to fetch movie data. Try again later.",
+                                    Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                        MovieData movieData = (MovieData) movieHandler;
+                        Intent intent;
+                        if (mActivity.isTabletMode()) {
+                            intent = mActivity.getIntent();
+                        } else {
+                            intent = new Intent(mContext, MovieDetailActivity.class);
+                        }
 
-                intent.putExtra(MovieData.DETAILS_PARAM, movieData.getDetailBundle());
-                intent.putExtra(MovieData.TRAILERS_PARAM, movieData.getTrailerBundle());
-                intent.putExtra(MovieData.REVIEWS_PARAM, movieData.getReviewBundle());
-                intent.putExtra(MovieData.CAST_PARAM, movieData.getCastBundle());
-                intent.putExtra(MovieData.CREW_PARAM, movieData.getCrewBundle());
+                        intent.putExtra(MovieData.DETAILS_PARAM, movieData.getDetailBundle());
+                        intent.putExtra(MovieData.TRAILERS_PARAM, movieData.getTrailerBundle());
+                        intent.putExtra(MovieData.REVIEWS_PARAM, movieData.getReviewBundle());
+                        intent.putExtra(MovieData.CAST_PARAM, movieData.getCastBundle());
+                        intent.putExtra(MovieData.CREW_PARAM, movieData.getCrewBundle());
 
-                if (!mActivity.isTabletMode()) {
-                    mContext.startActivity(intent);
-                } else {
-                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOAD_MOVIE_LIST_FINISHED));
-                }
-            }
-
-        };
-        task.execute(FetchMovieTask.FETCH_MOVIE, params, mContext);
+                        if (!mActivity.isTabletMode()) {
+                            mContext.startActivity(intent);
+                        } else {
+                            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOAD_MOVIE_LIST_FINISHED));
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        Log.e(LOG_TAG, "onError RX: " + throwable.getMessage());
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        Log.e(LOG_TAG, "onCompleteDetail RX");
+                    }
+                });
     }
 
     @Override
